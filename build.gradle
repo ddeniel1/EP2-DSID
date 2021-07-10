@@ -13,7 +13,9 @@ repositories {
 project.ext {
     sparkVersion = '2.4.5'
     slf4jVersion = '1.7.16'
+    awsSdkVersion = '1.11.759'
 
+    hadoopAwsVersion = '2.8.5'
 
     okHttpVersion = '4.9.1'
     jUnitVersion = '5.7.0'
@@ -37,6 +39,10 @@ configurations {
 dependencies {
     implementation group: 'org.apache.spark', name: 'spark-core_2.12', version: sparkVersion
     implementation group: 'org.apache.spark', name: 'spark-sql_2.12', version: sparkVersion
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: awsSdkVersion
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-core', version: awsSdkVersion
+    implementation group: 'org.apache.hadoop', name: 'hadoop-aws', version: hadoopAwsVersion
+    implementation group: 'org.apache.hadoop', name: 'hadoop-hdfs-httpfs', version: hadoopAwsVersion
 
     includeJar(platform("com.squareup.okhttp3:okhttp-bom:${okHttpVersion}"))
     includeJar group: 'com.squareup.okhttp3', name: 'okhttp'
@@ -48,4 +54,8 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+task runAssembler(type: JavaExec){
+    classpath = sourceSets.main.runtimeClasspath
+    main = "DataAssemblerApplication"
 }
