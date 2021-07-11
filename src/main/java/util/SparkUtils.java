@@ -32,13 +32,10 @@ public final class SparkUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        String pathFile = bucket + "/" + path.split("-")[2] + "/" + path.split("-")[0] + path.split("-")[1] + ".csv";
         return sparkSession.read()
                 .option("header", true)
                 .option("sep", ",")
-                .option("quote", "\"")
-                .option("charToEscapeQuoteEscaping", "")
-                .option("inferSchema", true)
-                .csv("file:///" + bucket);
+                .option("forceSchema", schema)
+                .csv(bucket);
     }
 }

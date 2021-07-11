@@ -1,6 +1,18 @@
 package util;
 
 public final class DatasetUtils {
+
+/*    public static final StructType =
+    new StructType(StructField("STATION", StringType,true), StructField("DATE",StringType,true), StructField("LATITUDE", StringType,true), StructField("LONGITUDE",StringType,true),
+    StructField("ELEVATION", StringType,true), StructField("NAME",StringType,true), StructField("TEMP", StringType,true), StructField("TEMP_ATTRIBUTES",StringType,true),
+    StructField("DEWP", StringType,true), StructField("DEWP_ATTRIBUTES",StringType,true), StructField("SLP", StringType,true), StructField("SLP_ATTRIBUTES",StringType,true),
+    StructField("STP", StringType,true), StructField("STP_ATTRIBUTES",StringType,true), StructField("VISIB", StringType,true), StructField("VISIB_ATTRIBUTES",StringType,true),
+    StructField("WDSP", StringType,true), StructField("WDSP_ATTRIBUTES",StringType,true), StructField("MXSPD", StringType,true), StructField("GUST",StringType,true),
+    StructField("MAX", StringType,true), StructField("MAX_ATTRIBUTES",StringType,true), StructField("MIN", StringType,true), StructField("MIN_ATTRIBUTES",StringType,true),
+    StructField("PRCP", StringType,true), StructField("PRCP_ATTRIBUTES",StringType,true),
+    StructField("SNDP", StringType,true), StructField("FRSHTT",DoubleType,true));*/
+
+
     public static final String INPUT_SCHEMA =
             "STATION integer," +
                     "DATE string," +

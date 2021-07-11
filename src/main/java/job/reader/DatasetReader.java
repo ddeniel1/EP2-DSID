@@ -5,29 +5,20 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import util.SparkUtils;
 
-import java.util.List;
-
-public class DatasetReader implements Reader<Dataset<Row>>{
+public class DatasetReader implements Reader<Dataset<Row>> {
     private final SparkSession sparkSession;
-    private final List<String> inputPaths;
+    private final String inputPath;
     private final String schema;
 
-    public DatasetReader(SparkSession sparkSession, List<String> inputPaths, String schema) {
+    public DatasetReader(SparkSession sparkSession, String inputPath, String schema) {
         this.sparkSession = sparkSession;
-        this.inputPaths = inputPaths;
+        this.inputPath = inputPath;
         this.schema = schema;
     }
 
     @Override
     public Dataset<Row> read() {
-        Dataset<Row> dataset = SparkUtils.readCsv(sparkSession, inputPaths.get(0), schema);
-
-
-        for (int i = 1, inputPathsSize = inputPaths.size(); i < inputPathsSize; i++) {
-            String inputPath = inputPaths.get(i);
-            dataset.union(SparkUtils.readCsv(sparkSession, inputPath, schema));
-        }
-
+        Dataset<Row> dataset = SparkUtils.readCsv(sparkSession, inputPath, schema);
 
         return dataset;
     }
