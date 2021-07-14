@@ -1,11 +1,13 @@
 package job.reader;
 
+import DTO.GlobalSummary;
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import util.SparkUtils;
 
-public class DatasetReader implements Reader<Dataset<Row>> {
+public class DatasetReader implements Reader<Dataset<GlobalSummary>> {
     private final SparkSession sparkSession;
     private final String inputPath;
     private final String schema;
@@ -17,9 +19,9 @@ public class DatasetReader implements Reader<Dataset<Row>> {
     }
 
     @Override
-    public Dataset<Row> read() {
+    public Dataset<GlobalSummary> read() {
         Dataset<Row> dataset = SparkUtils.readCsv(sparkSession, inputPath, schema);
 
-        return dataset;
+        return dataset.as(Encoders.bean(GlobalSummary.class));
     }
 }

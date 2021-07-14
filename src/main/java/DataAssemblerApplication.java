@@ -1,3 +1,5 @@
+import DTO.GlobalSummary;
+import job.processor.MeanProcessor;
 import job.reader.DatasetReader;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.spark.sql.Dataset;
@@ -51,13 +53,17 @@ public class DataAssemblerApplication {
 
         LOGGER.info("Initializing spark");
 
-        String yearRegex = "1929";
-        Dataset<Row> read = new DatasetReader(SparkUtils.buildSparkSession(), FileUtil.GSOD_FILES + yearRegex + "*/*.csv", DatasetUtils.INPUT_SCHEMA).read();
+        String yearRegex = "2000";
+        Dataset<GlobalSummary> read = new DatasetReader(SparkUtils.buildSparkSession(), FileUtil.GSOD_FILES + yearRegex + "*/*.csv", DatasetUtils.INPUT_SCHEMA).read();
 
-        System.out.println(read.schema());
+        System.out.println("Esquema" + read.schema());
         read.show(100);
         System.out.println();
-        read.select(read.col("*")).where(read.col("DATE").like("1929-05-18")).show(false);
+        read.select(read.col("*")).where(read.col("DATE").like("2000-05-18")).show(false);
+
+        Dataset<GlobalSummary> teste = new MeanProcessor().process(read);
+
+
     }
 
     private void unzipAndCompileFiles() {
