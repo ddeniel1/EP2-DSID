@@ -44,9 +44,11 @@ public class StandardDeviationProcessor implements Processor<Dataset<GlobalSumma
 //        System.out.println("datasetAll");
 //        datasetAll.show(20);
 
-        String[] calculatedColumns = new String[values.length];
+        String[] calculatedColumns = new String[values.length*2];
         int i = 0;
         for(String val: values){
+            calculatedColumns[i] = val;
+            i++;
             calculatedColumns[i] = String.format("std(%s)",val);
             i++;
             StructType structType = new StructType();
@@ -60,12 +62,11 @@ public class StandardDeviationProcessor implements Processor<Dataset<GlobalSumma
         }
 
         Column[] calculatedColumnsCol = pu.stringToClass(datasetSelect, calculatedColumns);
-        Column[] finalColumns = (Column[])  ArrayUtils.addAll(columns, calculatedColumnsCol);
+        Column[] finalColumns = (Column[])  ArrayUtils.addAll(dimensions_col, calculatedColumnsCol);
         datasetSelect = datasetSelect.select(finalColumns);
 
-        datasetSelect.show(20);
 
-        return null;
+        return datasetSelect;
 
     }
 }

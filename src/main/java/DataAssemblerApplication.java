@@ -69,9 +69,10 @@ public class DataAssemblerApplication {
 
         String[]  dimensions = new String[]{"NAME", "ELEVATION"};
         String[] values = new String[]{"TEMP", "DEWP"};
-//        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
-//        meanDataset.show(20);
+        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
+        meanDataset.show(20);
         Dataset<Row> standardDeviantionDataset = new StandardDeviationProcessor(dimensions, values).process(read);
+        standardDeviantionDataset.show(20);
 
     }
 
