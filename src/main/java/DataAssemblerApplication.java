@@ -1,7 +1,10 @@
 import DTO.GlobalSummary;
 import job.processor.MeanProcessor;
+import job.processor.StandardDeviationProcessor;
 import job.reader.DatasetReader;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
@@ -26,6 +29,7 @@ public class DataAssemblerApplication {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataAssemblerApplication.class);
 
     public static void main(String[] args) {
+        org.apache.log4j.Logger.getLogger("org").setLevel(Level.ERROR);
         new DataAssemblerApplication().run(args);
     }
 
@@ -53,16 +57,21 @@ public class DataAssemblerApplication {
 
         LOGGER.info("Initializing spark");
 
-        String yearRegex = "2000";
-        Dataset<GlobalSummary> read = new DatasetReader(SparkUtils.buildSparkSession(), FileUtil.GSOD_FILES + yearRegex + "*/*.csv", DatasetUtils.INPUT_SCHEMA).read();
+        String yearRegex = "1999";
+        Dataset<GlobalSummary> read = new DatasetReader(SparkUtils.buildSparkSession(), FileUtil.GSOD_FILES + yearRegex + "*/*.csv", DatasetUtils.schema).read();
 
         System.out.println("Esquema" + read.schema());
-        read.show(100);
-        System.out.println();
-        read.select(read.col("*")).where(read.col("DATE").like("2000-05-18")).show(false);
+        read.show(20);
+//        read.select(read.col("*")).where(read.col("DATE").like("2001-05-18")).show(false);
+//        System.out.println("Teste");
+//        read.select(read.col("*")).filter("NAME is not NULL").orderBy("NAME").show(20);
 
-        Dataset<GlobalSummary> teste = new MeanProcessor().process(read);
 
+        String[]  dimensions = new String[]{"NAME", "ELEVATION"};
+        String[] values = new String[]{"TEMP", "DEWP"};
+//        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
+//        meanDataset.show(20);
+        Dataset<Row> standardDeviantionDataset = new StandardDeviationProcessor(dimensions, values).process(read);
 
     }
 
