@@ -23,7 +23,7 @@ import java.util.List;
 
 public class FileUtil {
     public static final String ARCHIVE = "https://www.ncei.noaa.gov/data/global-summary-of-the-day/archive/";
-    public static final String GSOD_FILES = "./gsod-files/";
+    public static final String GSOD_FILES = "../gsod-files/";
     public static final String FILE_HEADER = "STATION,DATE,LATITUDE,LONGITUDE,ELEVATION,NAME,TEMP,TEMP_ATTRIBUTES,DEWP,DEWP_ATTRIBUTES,SLP,SLP_ATTRIBUTES,STP,STP_ATTRIBUTES,VISIB,VISIB_ATTRIBUTES,WDSP,WDSP_ATTRIBUTES,MXSPD,GUST,MAX,MAX_ATTRIBUTES,MIN,MIN_ATTRIBUTES,PRCP,PRCP_ATTRIBUTES,SNDP,FRSHTT";
     public static final String SEPARATOR = "/";
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
@@ -100,7 +100,7 @@ public class FileUtil {
                 }
 
                 pw = new PrintWriter(GSOD_FILES + year + SEPARATOR + entry.getName());
-                stringBuilder = new StringBuilder(stringBuilder.toString().replaceAll("\"", "").replaceAll("\n\n", "\n"));
+                stringBuilder = new StringBuilder(stringBuilder.toString().replaceAll("\",", ";").replaceAll("\"", "").replaceAll("\n\n", "\n"));
 
                 pw.println(stringBuilder);
                 pw.flush();

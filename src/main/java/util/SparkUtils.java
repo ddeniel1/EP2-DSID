@@ -4,6 +4,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.StructType;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +23,7 @@ public final class SparkUtils {
                 .getOrCreate();
     }
 
-    public static Dataset<Row> readCsv(SparkSession sparkSession, String path, String schema) {
+    public static Dataset<Row> readCsv(SparkSession sparkSession, String path, StructType schema) {
 
 
         String bucket = null;
@@ -34,8 +35,9 @@ public final class SparkUtils {
         }
         return sparkSession.read()
                 .option("header", true)
-                .option("sep", ",")
-                .option("forceSchema", schema)
+                .option("sep", ";")
+                .schema(schema)
+//                .option("inferSchema","true")
                 .csv(bucket);
     }
 }
