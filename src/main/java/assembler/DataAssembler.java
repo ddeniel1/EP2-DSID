@@ -1,10 +1,10 @@
+package assembler;
+
 import DTO.GlobalSummary;
 import job.processor.MeanProcessor;
 import job.processor.StandardDeviationProcessor;
 import job.reader.DatasetReader;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
@@ -24,21 +24,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DataAssemblerApplication {
+public class DataAssembler extends Thread {
     public static final int MAX_YEAR = 2016;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataAssemblerApplication.class);
-
-    public static void main(String[] args) {
-        org.apache.log4j.Logger.getLogger("org").setLevel(Level.ERROR);
-        new DataAssemblerApplication().run(args);
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataAssembler.class);
 
     private static int applyAsInt(Path path) {
         String[] splittedPath = path.toString().split("/");
         return Integer.parseInt(splittedPath[splittedPath.length - 1]);
     }
 
-    public void run(String[] args) {
+    public void run() {
+        BasicConfigurator.configure();
+        LOGGER.info("Thread running");
+    }
+
+    public void oldRun() {
+
 
         BasicConfigurator.configure();
 
@@ -67,7 +68,7 @@ public class DataAssemblerApplication {
 //        read.select(read.col("*")).filter("NAME is not NULL").orderBy("NAME").show(20);
 
 
-        String[]  dimensions = new String[]{"NAME", "ELEVATION"};
+        String[] dimensions = new String[]{"NAME", "ELEVATION"};
         String[] values = new String[]{"TEMP", "DEWP"};
         Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
         meanDataset.show(20);
@@ -107,7 +108,8 @@ public class DataAssemblerApplication {
         return result;
     }
 
-    private void downloadFiles(List<Integer> yearsToDownload) {
+    public synchronized void downloadFiles(List<Integer> yearsToDownload) {
+        BasicConfigurator.configure();
         for (Integer year : yearsToDownload) {
             new File(FileUtil.GSOD_FILES + year).mkdirs();
             LOGGER.info("Download do ano {}", year);
@@ -127,12 +129,13 @@ public class DataAssemblerApplication {
         try {
             return Files.size(Paths.get(fileName)) == IntegrityCheckConst.SIZE_MAP.get(year);
         } catch (IOException e) {
-            LOGGER.error("Não foi possivel verificar a integridade do arquivo {}", fileName);
+            LOGGER.error("Não foi possivel verificar a integridade do arquivo {}, talvez precise fazer o download do ano {}", fileName, year);
         }
         return false;
     }
 
-    private List<Integer> checkFiles() {
+    public List<Integer> checkFiles() {
+        BasicConfigurator.configure();
         List<Integer> years = new ArrayList<>();
 
         for (int i = 1929; i <= MAX_YEAR; i++) {
@@ -156,6 +159,7 @@ public class DataAssemblerApplication {
         } finally {
             LOGGER.info("{} existing directories:", yearsList.size());
             years.removeAll(yearsList);
+            years.forEach(this::checkIntegrity);
             return years;
         }
     }
