@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ApplicationStart implements Runnable {
 
-    private List<String> yearsPaths = new ArrayList<>();
+    private List<Integer> selectedYears = new ArrayList<>();
     private List<Integer> yearsToDownload = new ArrayList<>();
 
     public static void main(String[] args) {
@@ -21,28 +21,19 @@ public class ApplicationStart implements Runnable {
         DataAssembler assembler = new DataAssembler();
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(5, 1));
-        frame.add(MainButton.loadYearButton(frame,yearsPaths));
+        frame.setLayout(new GridLayout(6, 2));
+        frame.add(MainButton.loadYearButton(selectedYears));
         frame.add(MainButton.saveButton(frame));
         frame.add(MainButton.selectYearsButton(yearsToDownload, assembler));
-        frame.add(MainButton.checkFilesButton(frame, assembler, yearsToDownload));
+        frame.add(MainButton.checkFilesButton(assembler,yearsToDownload));
+        frame.add(MainButton.unzipAndCompileFilesButton(assembler,yearsToDownload));
+        frame.add(MainButton.getCountButton(assembler,selectedYears));
 
 
         frame.add(MainButton.quitProgramButton(frame));
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-    }
-
-
-
-
-    public List<String> getYearsPaths() {
-        return yearsPaths;
-    }
-
-    public void setYearsPaths(List<String> yearsPaths) {
-        this.yearsPaths = yearsPaths;
     }
 
 }

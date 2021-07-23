@@ -1,9 +1,14 @@
 package assembler;
 
 import DTO.GlobalSummary;
+import job.Job;
+import job.JobExecutor;
+import job.processor.CountProcessor;
 import job.processor.MeanProcessor;
 import job.processor.StandardDeviationProcessor;
-import job.reader.DatasetReader;
+import job.reader.MultipleDatasetReader;
+import job.reader.SingleDatasetReader;
+import job.writer.PrintWriter;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -22,7 +27,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DataAssembler extends Thread {
     public static final int MAX_YEAR = 2016;
@@ -59,7 +63,7 @@ public class DataAssembler extends Thread {
         LOGGER.info("Initializing spark");
 
         String yearRegex = "1999";
-        Dataset<GlobalSummary> read = new DatasetReader(SparkUtils.buildSparkSession(), FileUtil.GSOD_FILES + yearRegex + "*/*.csv", DatasetUtils.schema).read();
+        Dataset<GlobalSummary> read = new SingleDatasetReader(SparkUtils.buildSparkSession(), FileUtil.GSOD_FILES + yearRegex + "*/*.csv", DatasetUtils.schema).read();
 
         System.out.println("Esquema" + read.schema());
         read.show(20);
@@ -77,6 +81,13 @@ public class DataAssembler extends Thread {
 
     }
 
+    public void processData(List<Integer> years, String[] dimensions){
+        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(),years,DatasetUtils.schema),
+                new CountProcessor(dimensions),
+                new PrintWriter());
+        job.execute();
+    }
+
     private void unzipAndCompileFiles() {
         List<Integer> years = new ArrayList<>();
 
@@ -84,6 +95,16 @@ public class DataAssembler extends Thread {
             years.add(i);
         }
 
+        years.parallelStream().forEach(year -> {
+            if (!containsCsvFile(year)) {
+                FileUtil.unzipToStringList(year);
+            }
+
+        });
+    }
+
+    public void unzipAndCompileFiles(List<Integer> years){
+        BasicConfigurator.configure();
         years.parallelStream().forEach(year -> {
             if (!containsCsvFile(year)) {
                 FileUtil.unzipToStringList(year);
@@ -136,31 +157,28 @@ public class DataAssembler extends Thread {
 
     public List<Integer> checkFiles() {
         BasicConfigurator.configure();
-        List<Integer> years = new ArrayList<>();
+        List<Integer> allYears = new ArrayList<>();
 
         for (int i = 1929; i <= MAX_YEAR; i++) {
-            years.add(i);
+            allYears.add(i);
         }
 
-        Stream<Path> list;
-        List<Integer> yearsList = new ArrayList<>();
+
+        List<Integer> fileFolderYears = new ArrayList<>();
         try {
-            list = Files.list(Paths.get(FileUtil.GSOD_FILES));
 
-            List<Path> listList = list.collect(Collectors.toList());
+            List<Path> pathList = Files.list(Paths.get(FileUtil.GSOD_FILES)).collect(Collectors.toList());
 
-            listList.forEach(path -> {
-                yearsList.add(applyAsInt(path));
-            });
+            pathList.forEach(path -> fileFolderYears.add(applyAsInt(path)));
 
         } catch (IOException e) {
-            LOGGER.info("Directory does not exist, creating directory");
+            LOGGER.info("Main directory does not exist, creating directory");
             new File(FileUtil.GSOD_FILES).mkdirs();
         } finally {
-            LOGGER.info("{} existing directories:", yearsList.size());
-            years.removeAll(yearsList);
-            years.forEach(this::checkIntegrity);
-            return years;
+            LOGGER.info("{} existing directories:", fileFolderYears.size());
+            allYears.removeAll(fileFolderYears);
+            allYears.forEach(this::checkIntegrity);
+            return allYears;
         }
     }
 }

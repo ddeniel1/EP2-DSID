@@ -6,7 +6,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 public class CountProcessor implements Processor<Dataset<GlobalSummary>, Dataset<Row>> {
-    private String[] dimensions;
+    private final String[] dimensions;
 
     public CountProcessor(String[] dimensions){
         this.dimensions = dimensions;

@@ -25,7 +25,6 @@ public final class SparkUtils {
 
     public static Dataset<Row> readCsv(SparkSession sparkSession, String path, StructType schema) {
 
-
         String bucket = null;
         try {
             bucket = new File(".").getCanonicalPath() + "/" + path;
