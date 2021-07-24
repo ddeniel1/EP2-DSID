@@ -1,4 +1,6 @@
 import DTO.GlobalSummary;
+import job.processor.LeastSquares;
+import job.processor.LeastSquaresProcessor;
 import job.processor.MeanProcessor;
 import job.processor.StandardDeviationProcessor;
 import job.reader.DatasetReader;
@@ -67,13 +69,17 @@ public class DataAssemblerApplication {
 //        read.select(read.col("*")).filter("NAME is not NULL").orderBy("NAME").show(20);
 
 
-        String[]  dimensions = new String[]{"NAME", "ELEVATION"};
-        String[] values = new String[]{"TEMP", "DEWP"};
-        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
-        meanDataset.show(20);
-        Dataset<Row> standardDeviantionDataset = new StandardDeviationProcessor(dimensions, values).process(read);
-        standardDeviantionDataset.show(20);
+//        String[]  dimensions = new String[]{};
+//        String[] values = new String[]{"TEMP", "DEWP"};
+//        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
+//        meanDataset.show(20);
+//        Dataset<Row> standardDeviantionDataset = new StandardDeviationProcessor(dimensions, values).process(read);
+//        standardDeviantionDataset.show(20);
 
+        String x = "TEMP";
+        String y = "DEWP";
+        LeastSquares ls = new LeastSquaresProcessor(x, y).process(read);
+        System.out.println(ls.toString());
     }
 
     private void unzipAndCompileFiles() {

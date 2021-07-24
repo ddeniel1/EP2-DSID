@@ -35,23 +35,22 @@ public class ProcessorUtils implements Serializable {
         return JavaConverters.asScalaIteratorConverter(targetList.iterator()).asScala().toSeq();
     }
 
-//    public Double standardDeviation(Row row) {
-//
-//        Double val = row.<Double>getAs("TEMP");
-//        Double media = row.<Double>getAs("avg(TEMP)");
-//        Long n = row.<Long>getAs("count");
-//
-//        Double resul = Math.pow(val - media, 2) / n;
-//
-//        return resul;
-//    }
-
     public Row standardDeviation(Row row, String val_str) {
         Double val = row.<Double>getAs(val_str);
         Double media = row.<Double>getAs(String.format("avg(%s)",val_str));
         Long n = row.<Long>getAs("count");
         Long id = row.getAs("id");
-        Double std = Math.pow(val - media, 2) / n;
+        Double std = Math.pow(val - media, 2) / (n-1);
+        Row resul = RowFactory.create(id, val, std);
+
+        return resul;
+    }
+
+    public Row standardDeviation(Row row, String val_str, Double media, Long n) {
+        Double val = row.<Double>getAs(val_str);
+        val = val==null?0:val;
+        Long id = row.getAs("id");
+        Double std = Math.pow(val - media, 2) / (n-1);
         Row resul = RowFactory.create(id, val, std);
 
         return resul;
@@ -67,5 +66,16 @@ public class ProcessorUtils implements Serializable {
             }
         }
         return dataType;
+    }
+
+    public Row leastSquaresB(Row row, String x, String y) {
+        Double xVal = row.<Double>getAs(x);
+        Double yVal = row.<Double>getAs(y);
+        Double xAvgVal = row.<Double>getAs(String.format("avg(%s)",x));
+        Double yAvgVal = row.<Double>getAs(String.format("avg(%s)",y));
+        Double up = xVal*(yVal - yAvgVal);
+        Double down = xVal*(xVal - xAvgVal);
+
+        return RowFactory.create(up, down);
     }
 }
