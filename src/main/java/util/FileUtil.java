@@ -96,11 +96,13 @@ public class FileUtil {
                 StringBuilder stringBuilder = new StringBuilder();
 
                 while (bufferedReader.ready()) {
-                    stringBuilder.append(bufferedReader.readLine()).append("\n");
+                    String readLine = bufferedReader.readLine();
+                    if (!readLine.equals(""))
+                        stringBuilder.append(readLine).append("\n");
                 }
 
                 pw = new PrintWriter(GSOD_FILES + year + SEPARATOR + entry.getName());
-                stringBuilder = new StringBuilder(stringBuilder.toString().replaceAll("\",", ";").replaceAll("\"", "").replaceAll("\n\n", "\n"));
+                stringBuilder = new StringBuilder(stringBuilder.toString().replaceAll("\",", ";").replaceAll("\"", "").replaceAll("\n\n", "\n").trim());
 
                 pw.println(stringBuilder);
                 pw.flush();
