@@ -1,12 +1,8 @@
 import DTO.GlobalSummary;
-import job.processor.LeastSquares;
-import job.processor.LeastSquaresProcessor;
-import job.processor.MeanProcessor;
-import job.processor.StandardDeviationProcessor;
+import job.processor.*;
 import job.reader.DatasetReader;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
-import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
@@ -64,13 +60,15 @@ public class DataAssemblerApplication {
 
         System.out.println("Esquema" + read.schema());
         read.show(20);
+        Dataset<Row> describe = read.describe();
+        describe.show();
 //        read.select(read.col("*")).where(read.col("DATE").like("2001-05-18")).show(false);
 //        System.out.println("Teste");
 //        read.select(read.col("*")).filter("NAME is not NULL").orderBy("NAME").show(20);
 
 
-//        String[]  dimensions = new String[]{};
-//        String[] values = new String[]{"TEMP", "DEWP"};
+        String[]  dimensions = new String[]{"NAME"};
+        String[] values = new String[]{"TEMP", "DEWP"};
 //        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
 //        meanDataset.show(20);
 //        Dataset<Row> standardDeviantionDataset = new StandardDeviationProcessor(dimensions, values).process(read);
@@ -80,6 +78,14 @@ public class DataAssemblerApplication {
         String y = "DEWP";
         LeastSquares ls = new LeastSquaresProcessor(x, y).process(read);
         System.out.println(ls.toString());
+        ls.data.show(20);
+        ls.describe.show(20);
+
+//        Dataset<GlobalSummary> a = new DateProcessor("month").process(read);
+
+//        Dataset<Row> a = new StandardDeviationProcessorCopy(dimensions, values).process(read);
+//        a.show(20);
+
     }
 
     private void unzipAndCompileFiles() {

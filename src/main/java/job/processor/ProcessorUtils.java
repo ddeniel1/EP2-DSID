@@ -48,9 +48,9 @@ public class ProcessorUtils implements Serializable {
 
     public Row standardDeviation(Row row, String val_str, Double media, Long n) {
         Double val = row.<Double>getAs(val_str);
-        val = val==null?0:val;
+        val = val==null?media:val;
         Long id = row.getAs("id");
-        Double std = Math.pow(val - media, 2) / (n-1);
+        Double std = Math.pow((Math.pow(val - media, 2) / (n-1)), 0.5);
         Row resul = RowFactory.create(id, val, std);
 
         return resul;
@@ -77,5 +77,18 @@ public class ProcessorUtils implements Serializable {
         Double down = xVal*(xVal - xAvgVal);
 
         return RowFactory.create(up, down);
+    }
+
+    public Row leastSquaresB(Row row, String x, String y, Double xAvg, Double yAvg) {
+        Double xVal = row.<Double>getAs(x);
+        Double yVal = row.<Double>getAs(y);
+        Double up = xVal*(yVal - yAvg);
+        Double down = xVal*(xVal - xAvg);
+
+        return RowFactory.create(up, down);
+    }
+
+    public Row predict(Row linha, Double a, Double b){
+        return RowFactory.create(a + (b*linha.getDouble(0)));
     }
 }
