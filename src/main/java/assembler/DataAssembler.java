@@ -9,7 +9,6 @@ import job.processor.LeastSquaresProcessor;
 import job.reader.MultipleDatasetReader;
 import job.reader.SingleDatasetReader;
 import job.writer.PrintWriter;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
