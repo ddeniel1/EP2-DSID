@@ -8,12 +8,12 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructType;
 import util.SparkUtils;
 
-public class DatasetReader implements Reader<Dataset<GlobalSummary>> {
+public class SingleDatasetReader implements Reader<Dataset<GlobalSummary>> {
     private final SparkSession sparkSession;
     private final String inputPath;
     private final StructType schema;
 
-    public DatasetReader(SparkSession sparkSession, String inputPath, StructType schema) {
+    public SingleDatasetReader(SparkSession sparkSession, String inputPath, StructType schema) {
         this.sparkSession = sparkSession;
         this.inputPath = inputPath;
         this.schema = schema;

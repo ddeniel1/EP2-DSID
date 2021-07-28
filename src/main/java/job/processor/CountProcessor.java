@@ -14,7 +14,7 @@ public class CountProcessor implements Processor<Dataset<GlobalSummary>, Dataset
      */
 
 
-    private String[] dimensions;
+    private final String[] dimensions;
 
     public CountProcessor(String[] dimensions){
         this.dimensions = dimensions;

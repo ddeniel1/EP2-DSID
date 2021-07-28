@@ -47,6 +47,7 @@ public class FileUtil {
 
 
             String outputPath = GSOD_FILES + year + SEPARATOR + filePath;
+            LOGGER.info(outputPath);
             fos = new FileOutputStream(outputPath);
 
             byte[] buffer = new byte[8388608];

@@ -1,8 +1,15 @@
+package assembler;
+
 import DTO.GlobalSummary;
-import job.processor.*;
-import job.reader.DatasetReader;
+import job.Job;
+import job.JobExecutor;
+import job.processor.CountProcessor;
+import job.processor.LeastSquares;
+import job.processor.LeastSquaresProcessor;
+import job.reader.MultipleDatasetReader;
+import job.reader.SingleDatasetReader;
+import job.writer.PrintWriter;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
@@ -20,23 +27,23 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class DataAssemblerApplication {
+public class DataAssembler extends Thread {
     public static final int MAX_YEAR = 2016;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataAssemblerApplication.class);
-
-    public static void main(String[] args) {
-        org.apache.log4j.Logger.getLogger("org").setLevel(Level.ERROR);
-        new DataAssemblerApplication().run(args);
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataAssembler.class);
 
     private static int applyAsInt(Path path) {
         String[] splittedPath = path.toString().split("/");
         return Integer.parseInt(splittedPath[splittedPath.length - 1]);
     }
 
-    public void run(String[] args) {
+    public void run() {
+        BasicConfigurator.configure();
+        LOGGER.info("Thread running");
+    }
+
+    public void oldRun() {
+
 
         BasicConfigurator.configure();
 
@@ -56,7 +63,7 @@ public class DataAssemblerApplication {
         LOGGER.info("Initializing spark");
 
         String yearRegex = "1999";
-        Dataset<GlobalSummary> read = new DatasetReader(SparkUtils.buildSparkSession(), FileUtil.GSOD_FILES + yearRegex + "*/*.csv", DatasetUtils.schema).read();
+        Dataset<GlobalSummary> read = new SingleDatasetReader(SparkUtils.buildSparkSession(), FileUtil.GSOD_FILES + yearRegex + "*/*.csv", DatasetUtils.schema).read();
 
         System.out.println("Esquema" + read.schema());
         read.show(20);
@@ -67,7 +74,7 @@ public class DataAssemblerApplication {
 //        read.select(read.col("*")).filter("NAME is not NULL").orderBy("NAME").show(20);
 
 
-        String[]  dimensions = new String[]{"NAME"};
+        String[]  dimensions = new String[]{"NAME", "ELEVATION"};
         String[] values = new String[]{"TEMP", "DEWP"};
 //        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
 //        meanDataset.show(20);
@@ -88,6 +95,13 @@ public class DataAssemblerApplication {
 
     }
 
+    public void processData(List<Integer> years, String[] dimensions){
+        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(),years,DatasetUtils.schema),
+                new CountProcessor(dimensions),
+                new PrintWriter());
+        job.execute();
+    }
+
     private void unzipAndCompileFiles() {
         List<Integer> years = new ArrayList<>();
 
@@ -95,6 +109,16 @@ public class DataAssemblerApplication {
             years.add(i);
         }
 
+        years.parallelStream().forEach(year -> {
+            if (!containsCsvFile(year)) {
+                FileUtil.unzipToStringList(year);
+            }
+
+        });
+    }
+
+    public void unzipAndCompileFiles(List<Integer> years){
+        BasicConfigurator.configure();
         years.parallelStream().forEach(year -> {
             if (!containsCsvFile(year)) {
                 FileUtil.unzipToStringList(year);
@@ -119,7 +143,8 @@ public class DataAssemblerApplication {
         return result;
     }
 
-    private void downloadFiles(List<Integer> yearsToDownload) {
+    public synchronized void downloadFiles(List<Integer> yearsToDownload) {
+        BasicConfigurator.configure();
         for (Integer year : yearsToDownload) {
             new File(FileUtil.GSOD_FILES + year).mkdirs();
             LOGGER.info("Download do ano {}", year);
@@ -139,36 +164,35 @@ public class DataAssemblerApplication {
         try {
             return Files.size(Paths.get(fileName)) == IntegrityCheckConst.SIZE_MAP.get(year);
         } catch (IOException e) {
-            LOGGER.error("Não foi possivel verificar a integridade do arquivo {}", fileName);
+            LOGGER.error("Não foi possivel verificar a integridade do arquivo {}, talvez precise fazer o download do ano {}", fileName, year);
         }
         return false;
     }
 
-    private List<Integer> checkFiles() {
-        List<Integer> years = new ArrayList<>();
+    public List<Integer> checkFiles() {
+        BasicConfigurator.configure();
+        List<Integer> allYears = new ArrayList<>();
 
         for (int i = 1929; i <= MAX_YEAR; i++) {
-            years.add(i);
+            allYears.add(i);
         }
 
-        Stream<Path> list;
-        List<Integer> yearsList = new ArrayList<>();
+
+        List<Integer> fileFolderYears = new ArrayList<>();
         try {
-            list = Files.list(Paths.get(FileUtil.GSOD_FILES));
 
-            List<Path> listList = list.collect(Collectors.toList());
+            List<Path> pathList = Files.list(Paths.get(FileUtil.GSOD_FILES)).collect(Collectors.toList());
 
-            listList.forEach(path -> {
-                yearsList.add(applyAsInt(path));
-            });
+            pathList.forEach(path -> fileFolderYears.add(applyAsInt(path)));
 
         } catch (IOException e) {
-            LOGGER.info("Directory does not exist, creating directory");
+            LOGGER.info("Main directory does not exist, creating directory");
             new File(FileUtil.GSOD_FILES).mkdirs();
         } finally {
-            LOGGER.info("{} existing directories:", yearsList.size());
-            years.removeAll(yearsList);
-            return years;
+            LOGGER.info("{} existing directories:", fileFolderYears.size());
+            allYears.removeAll(fileFolderYears);
+            allYears.forEach(this::checkIntegrity);
+            return allYears;
         }
     }
 }
