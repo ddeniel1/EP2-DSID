@@ -38,14 +38,11 @@ public class DataAssembler extends Thread {
     }
 
     public void run() {
-        BasicConfigurator.configure();
         LOGGER.info("Thread running");
     }
 
     public void oldRun() {
 
-
-        BasicConfigurator.configure();
 
         LOGGER.info("Checando arquivos");
 
@@ -118,7 +115,6 @@ public class DataAssembler extends Thread {
     }
 
     public void unzipAndCompileFiles(List<Integer> years){
-        BasicConfigurator.configure();
         years.parallelStream().forEach(year -> {
             if (!containsCsvFile(year)) {
                 FileUtil.unzipToStringList(year);
@@ -144,7 +140,6 @@ public class DataAssembler extends Thread {
     }
 
     public synchronized void downloadFiles(List<Integer> yearsToDownload) {
-        BasicConfigurator.configure();
         for (Integer year : yearsToDownload) {
             new File(FileUtil.GSOD_FILES + year).mkdirs();
             LOGGER.info("Download do ano {}", year);
@@ -170,7 +165,6 @@ public class DataAssembler extends Thread {
     }
 
     public List<Integer> checkFiles() {
-        BasicConfigurator.configure();
         List<Integer> allYears = new ArrayList<>();
 
         for (int i = 1929; i <= MAX_YEAR; i++) {
