@@ -14,6 +14,18 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ProcessorUtils implements Serializable {
+    public static DataType dataType(Dataset<Row> dataset, String colName) {
+        StructField[] fields = dataset.schema().fields();
+        DataType dataType = null;
+        for (StructField field : fields) {
+            if (field.name().equals(colName)) {
+                dataType = field.dataType();
+                break;
+            }
+        }
+        return dataType;
+    }
+
     public Column[] stringToClass(Dataset<?> dataset, String[] list) {
         Column[] cols = new Column[list.length];
 
@@ -48,18 +60,6 @@ public class ProcessorUtils implements Serializable {
         Row resul = RowFactory.create(id, val, std);
 
         return resul;
-    }
-
-    public static DataType dataType(Dataset<Row> dataset, String colName) {
-        StructField[] fields = dataset.schema().fields();
-        DataType dataType = null;
-        for (StructField field : fields) {
-            if (field.name().equals(colName)) {
-                dataType = field.dataType();
-                break;
-            }
-        }
-        return dataType;
     }
 
     public Row leastSquaresB(Row row, String x, String y) {

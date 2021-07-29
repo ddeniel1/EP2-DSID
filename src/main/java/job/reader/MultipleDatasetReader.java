@@ -11,7 +11,7 @@ import util.SparkUtils;
 
 import java.util.List;
 
-public class MultipleDatasetReader implements Reader<Dataset<GlobalSummary>>{
+public class MultipleDatasetReader implements Reader<Dataset<GlobalSummary>> {
 
     private final SparkSession sparkSession;
     private final List<Integer> inputPath;

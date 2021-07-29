@@ -71,7 +71,7 @@ public class DataAssembler extends Thread {
 //        read.select(read.col("*")).filter("NAME is not NULL").orderBy("NAME").show(20);
 
 
-        String[]  dimensions = new String[]{"NAME", "ELEVATION"};
+        String[] dimensions = new String[]{"NAME", "ELEVATION"};
         String[] values = new String[]{"TEMP", "DEWP"};
 //        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
 //        meanDataset.show(20);
@@ -92,15 +92,15 @@ public class DataAssembler extends Thread {
 
     }
 
-    public void countProcessData(List<Integer> years, String[] dimensions){
-        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(),years,DatasetUtils.schema),
+    public void countProcessData(List<Integer> years, String[] dimensions) {
+        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
                 new CountProcessor(dimensions),
                 new PrintWriter());
         job.execute();
     }
 
-    public void leastSquaresProcess(List<Integer> years, String x, String y){
-        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(),years,DatasetUtils.schema),
+    public void leastSquaresProcess(List<Integer> years, String x, String y) {
+        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
                 new LeastSquaresProcessor(x, y),
                 new LeastSquaresWriterTemp());
         job.execute();
@@ -121,7 +121,7 @@ public class DataAssembler extends Thread {
         });
     }
 
-    public void unzipAndCompileFiles(List<Integer> years){
+    public void unzipAndCompileFiles(List<Integer> years) {
         years.parallelStream().forEach(year -> {
             if (!containsCsvFile(year)) {
                 FileUtil.unzipToStringList(year);

@@ -13,8 +13,8 @@ public class StandardDeviationProcessor implements Processor<Dataset<GlobalSumma
     values: Colunas a agrupadas, recebe um Array de Strings, sempre é necessário ter pelo menos uma coluna.
      */
 
-    private String[] dimensions;
-    private String[] values;
+    private final String[] dimensions;
+    private final String[] values;
 
     public StandardDeviationProcessor(String[] dimensions, String[] values) {
         this.dimensions = dimensions;

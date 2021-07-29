@@ -237,7 +237,7 @@ public class MainButton {
                         getColumList(xFrame, xSelection);
                     }
                 });
-                xButton.setBounds(50,50,150,50);
+                xButton.setBounds(50, 50, 150, 50);
                 frame.add(xButton);
                 final String[] ySelection = {""};
 
@@ -249,22 +249,22 @@ public class MainButton {
                     }
                 });
 
-                yButton.setBounds(250,50,150,50);
+                yButton.setBounds(250, 50, 150, 50);
                 frame.add(yButton);
 
 
-                frame.setSize(450,300);
+                frame.setSize(450, 300);
 
                 JButton confirmationButton = new JButton(new AbstractAction("Confirm") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         Executors.newSingleThreadExecutor()
-                                .execute(() -> assembler.leastSquaresProcess(years, xSelection[0],ySelection[0]));
+                                .execute(() -> assembler.leastSquaresProcess(years, xSelection[0], ySelection[0]));
                         frame.dispose();
                     }
                 });
 
-                confirmationButton.setBounds(180,120,100,50);
+                confirmationButton.setBounds(180, 120, 100, 50);
                 frame.add(confirmationButton);
 
 
@@ -280,9 +280,9 @@ public class MainButton {
         List<String> columsList = new ArrayList<>();
 
         Iterator<StructField> iterator = DatasetUtils.schema.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             StructField next = iterator.next();
-            if (next.dataType().typeName().equals("double")){
+            if (next.dataType().typeName().equals("double")) {
                 columsList.add(next.name());
             }
         }
@@ -293,7 +293,7 @@ public class MainButton {
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setLayoutOrientation(JList.VERTICAL);
         list.addListSelectionListener(e1 -> {
-            if (e1.getValueIsAdjusting()){
+            if (e1.getValueIsAdjusting()) {
                 selection[0] = colums[list.getSelectedIndex()];
                 System.out.println(selection[0]);
             }
@@ -305,44 +305,44 @@ public class MainButton {
         listScroller.setVisible(true);
         xFrame.add(listScroller);
 
-        xFrame.setSize(250,200);
+        xFrame.setSize(250, 200);
 
         xFrame.setLocationRelativeTo(null);
         xFrame.setVisible(true);
     }
 
     private static void addAllCollums(JFrame frame, List<String> columsToProcess, List<JCheckBox> checkBoxes, String[] colums) {
-                for (int i = 0; i < colums.length; i++) {
-                    String colum = colums[i];
+        for (int i = 0; i < colums.length; i++) {
+            String colum = colums[i];
 //                    System.out.println(colum);
 
-                    JCheckBox checkbox1 = new JCheckBox(colum, false);
-                    checkbox1.addItemListener(e1 -> {
-                        if (columsToProcess.contains(colum)) {
-                            columsToProcess.remove(colum);
-                        } else
-                            columsToProcess.add(colum);
-                    });
-                    int x, y;
-                    x = 50 + ((i % 5) * 200);
-                    y = 50 + ((i / 5) * 30);
-                    checkbox1.setBounds(x, y, 200, 30);
-                    checkbox1.setVisible(true);
-                    checkBoxes.add(checkbox1);
-                }
-                JCheckBox checkBoxAll = new JCheckBox("all", columsToProcess.size() == 27);
-                checkBoxAll.addItemListener(e1 -> {
-                    if (!columsToProcess.isEmpty() && columsToProcess.size() < 27) {
-                        columsToProcess.clear();
-                        columsToProcess.addAll(Arrays.asList(colums));
-                    } else if (columsToProcess.size() == 88) {
-                        columsToProcess.clear();
-                    } else columsToProcess.addAll(Arrays.asList(colums));
-
-                });
-                checkBoxAll.setBounds(780, 400, 60, 20);
-                checkBoxAll.setVisible(true);
-                checkBoxes.add(checkBoxAll);
-                checkBoxes.forEach(frame::add);
-            }
+            JCheckBox checkbox1 = new JCheckBox(colum, false);
+            checkbox1.addItemListener(e1 -> {
+                if (columsToProcess.contains(colum)) {
+                    columsToProcess.remove(colum);
+                } else
+                    columsToProcess.add(colum);
+            });
+            int x, y;
+            x = 50 + ((i % 5) * 200);
+            y = 50 + ((i / 5) * 30);
+            checkbox1.setBounds(x, y, 200, 30);
+            checkbox1.setVisible(true);
+            checkBoxes.add(checkbox1);
         }
+        JCheckBox checkBoxAll = new JCheckBox("all", columsToProcess.size() == 27);
+        checkBoxAll.addItemListener(e1 -> {
+            if (!columsToProcess.isEmpty() && columsToProcess.size() < 27) {
+                columsToProcess.clear();
+                columsToProcess.addAll(Arrays.asList(colums));
+            } else if (columsToProcess.size() == 88) {
+                columsToProcess.clear();
+            } else columsToProcess.addAll(Arrays.asList(colums));
+
+        });
+        checkBoxAll.setBounds(780, 400, 60, 20);
+        checkBoxAll.setVisible(true);
+        checkBoxes.add(checkBoxAll);
+        checkBoxes.forEach(frame::add);
+    }
+}

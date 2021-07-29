@@ -28,8 +28,8 @@ public class LeastSquaresProcessor implements Processor<Dataset<GlobalSummary>, 
     y: Nome da coluna alvo  String
      */
 
-    private String x;
-    private String y;
+    private final String x;
+    private final String y;
 
     public LeastSquaresProcessor(String x, String y) {
         this.x = x;

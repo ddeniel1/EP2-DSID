@@ -11,7 +11,7 @@ public class DateProcessor implements Processor<Dataset<GlobalSummary>, Dataset<
     Esse processor trunca a data:
     trunc: String - year: trunca por ano, month trunca por mês, week trunca por semana, quarter trunca por trimestre
      */
-    private String trunc;
+    private final String trunc;
 
     public DateProcessor(String trunc) {
         this.trunc = trunc;
