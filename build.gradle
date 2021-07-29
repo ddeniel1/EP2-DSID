@@ -19,6 +19,8 @@ project.ext {
 
     okHttpVersion = '4.9.1'
     jUnitVersion = '5.7.0'
+
+    JfreechartVersion = '1.0.13'
 }
 
 java {
@@ -49,6 +51,10 @@ dependencies {
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: jUnitVersion
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: jUnitVersion
+
+    implementation group: 'jfree', name: 'jfreechart', version: '1.0.13'
+
+
 }
 
 test {
