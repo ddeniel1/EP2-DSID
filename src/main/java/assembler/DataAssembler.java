@@ -8,6 +8,7 @@ import job.processor.LeastSquares;
 import job.processor.LeastSquaresProcessor;
 import job.reader.MultipleDatasetReader;
 import job.reader.SingleDatasetReader;
+import job.writer.PlotGraph;
 import job.writer.PrintWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -40,7 +41,7 @@ public class DataAssembler extends Thread {
         LOGGER.info("Thread running");
     }
 
-    public void oldRun() {
+    public void oldRun() throws Exception {
 
 
         LOGGER.info("Checando arquivos");
@@ -83,6 +84,8 @@ public class DataAssembler extends Thread {
         System.out.println(ls.toString());
         ls.data.show(20);
         ls.describe.show(20);
+
+        new PlotGraph().write(ls);
 
 //        Dataset<GlobalSummary> a = new DateProcessor("month").process(read);
 

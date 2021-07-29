@@ -11,8 +11,9 @@ public class ApplicationStart implements Runnable {
     private List<Integer> selectedYears = new ArrayList<>();
     private List<Integer> yearsToDownload = new ArrayList<>();
 
-    public static void main(String[] args) {
-        new ApplicationStart().run();
+    public static void main(String[] args) throws Exception {
+//        new ApplicationStart().run();
+        new DataAssembler().oldRun();
     }
 
     @Override
