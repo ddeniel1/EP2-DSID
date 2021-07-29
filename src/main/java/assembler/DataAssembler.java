@@ -85,7 +85,7 @@ public class DataAssembler extends Thread {
         ls.data.show(20);
         ls.describe.show(20);
 
-        new PlotGraph().write(ls);
+        new PlotGraph(x,y).write(ls);
 
 //        Dataset<GlobalSummary> a = new DateProcessor("month").process(read);
 
@@ -104,7 +104,7 @@ public class DataAssembler extends Thread {
     public void leastSquaresProcess(List<Integer> years, String x, String y) {
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
                 new LeastSquaresProcessor(x, y),
-                new PlotGraph());
+                new PlotGraph(x,y));
         job.execute();
     }
 
