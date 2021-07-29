@@ -2,9 +2,12 @@ package job.processor;
 
 import DTO.GlobalSummary;
 import org.apache.spark.api.java.function.MapFunction;
-import org.apache.spark.sql.*;
+import org.apache.spark.sql.Column;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
 import org.apache.spark.sql.catalyst.encoders.RowEncoder;
+import org.apache.spark.sql.functions;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;
 
@@ -25,20 +28,21 @@ public class LeastSquaresProcessor implements Processor<Dataset<GlobalSummary>, 
     y: Nome da coluna alvo  String
      */
 
-    private String x;
-    private String y;
+    private final String x;
+    private final String y;
 
     public LeastSquaresProcessor(String x, String y) {
         this.x = x;
         this.y = y;
     }
+
     @Override
     public LeastSquares process(Dataset<GlobalSummary> dataset) {
-        dataset = dataset.filter(String.format("%s != 9999.9",x));
-        dataset = dataset.filter(String.format("%s != 9999.9",y));
+        dataset = dataset.filter(String.format("%s != 9999.9", x));
+        dataset = dataset.filter(String.format("%s != 9999.9", y));
         ProcessorUtils pu = new ProcessorUtils();
         String[] aux = new String[]{};
-        String[] aux2 = new String[]{x,y};
+        String[] aux2 = new String[]{x, y};
         Dataset<Row> meanDataset = new MeanProcessor(aux, aux2).process(dataset);
         Double xAvg = meanDataset.first().getDouble(0);
         Double yAvg = meanDataset.first().getDouble(1);
@@ -58,25 +62,25 @@ public class LeastSquaresProcessor implements Processor<Dataset<GlobalSummary>, 
         String xVal = this.x;
         String yVal = this.y;
         Dataset<Row> temp = datasetSelect.map((MapFunction<Row, Row>) row -> pu.leastSquaresB(
-                row, xVal, yVal, xAvg, yAvg),encoder);
+                row, xVal, yVal, xAvg, yAvg), encoder);
 
         temp = temp.groupBy().sum();
         Double up = temp.first().getDouble(0);
         Double down = temp.first().getDouble(1);
-        Double b = up/down;
-        Double a = yAvg - (b*xAvg);
+        Double b = up / down;
+        Double a = yAvg - (b * xAvg);
 
-        datasetSelect = datasetSelect.withColumn(y+"_predicted", functions.lit((functions.col(x).multiply(b)).plus(a)));
+        datasetSelect = datasetSelect.withColumn(y + "_predicted", functions.lit((functions.col(x).multiply(b)).plus(a)));
 
         Dataset<Row> tempXMax = datasetSelect.groupBy().max();
         Double xMax = tempXMax.first().getDouble(0);
         Dataset<Row> tempXMin = datasetSelect.groupBy().min();
         Double xMin = tempXMin.first().getDouble(0);
-        Double y0 = a + (b*xMin);
-        Double y1 = a + (b*xMax);
+        Double y0 = a + (b * xMin);
+        Double y1 = a + (b * xMax);
         LeastSquares ls = new LeastSquares(a, b, xMin, xMax, y0, y1, xAvg, yAvg, xStd, yStd, datasetSelect, datasetSelect.describe());
 
-        return  ls;
+        return ls;
     }
 }
 

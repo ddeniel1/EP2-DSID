@@ -71,7 +71,7 @@ public class DataAssembler extends Thread {
 //        read.select(read.col("*")).filter("NAME is not NULL").orderBy("NAME").show(20);
 
 
-        String[]  dimensions = new String[]{"NAME", "ELEVATION"};
+        String[] dimensions = new String[]{"NAME", "ELEVATION"};
         String[] values = new String[]{"TEMP", "DEWP"};
 //        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
 //        meanDataset.show(20);
@@ -85,7 +85,7 @@ public class DataAssembler extends Thread {
         ls.data.show(20);
         ls.describe.show(20);
 
-        new PlotGraph().write(ls);
+        new PlotGraph(x,y).write(ls);
 
 //        Dataset<GlobalSummary> a = new DateProcessor("month").process(read);
 
@@ -94,10 +94,17 @@ public class DataAssembler extends Thread {
 
     }
 
-    public void processData(List<Integer> years, String[] dimensions){
-        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(),years,DatasetUtils.schema),
+    public void countProcessData(List<Integer> years, String[] dimensions) {
+        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
                 new CountProcessor(dimensions),
                 new PrintWriter());
+        job.execute();
+    }
+
+    public void leastSquaresProcess(List<Integer> years, String x, String y) {
+        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
+                new LeastSquaresProcessor(x, y),
+                new PlotGraph(x,y));
         job.execute();
     }
 
@@ -116,7 +123,7 @@ public class DataAssembler extends Thread {
         });
     }
 
-    public void unzipAndCompileFiles(List<Integer> years){
+    public void unzipAndCompileFiles(List<Integer> years) {
         years.parallelStream().forEach(year -> {
             if (!containsCsvFile(year)) {
                 FileUtil.unzipToStringList(year);
@@ -141,7 +148,7 @@ public class DataAssembler extends Thread {
         return result;
     }
 
-    public synchronized void downloadFiles(List<Integer> yearsToDownload) {
+    public void downloadFiles(List<Integer> yearsToDownload) {
         for (Integer year : yearsToDownload) {
             new File(FileUtil.GSOD_FILES + year).mkdirs();
             LOGGER.info("Download do ano {}", year);
@@ -154,6 +161,7 @@ public class DataAssembler extends Thread {
                     LOGGER.error("Integridade do arquivo {} falhou, exclua a pasta e execute o programa novamente", year, new RuntimeException("Arquivo Corrompido"));
             } else LOGGER.error("Falha no download do arquivo {}", year);
         }
+
     }
 
     private boolean checkIntegrity(Integer year) {
