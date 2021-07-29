@@ -29,8 +29,10 @@ public class ApplicationStart implements Runnable {
         frame.add(MainButton.saveButton(frame));
         frame.add(MainButton.unzipAndCompileFilesButton(assembler, yearsToDownload));
         frame.add(MainButton.getCountButton(assembler, selectedYears));
-        frame.add(MainButton.quitProgramButton(frame));
         frame.add(MainButton.leastSquaresButton(assembler, selectedYears));
+        frame.add(MainButton.meanProcessorButton(assembler, selectedYears));
+        frame.add(MainButton.standardDeviationProcessorButton(assembler, selectedYears));
+        frame.add(MainButton.quitProgramButton(frame));
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

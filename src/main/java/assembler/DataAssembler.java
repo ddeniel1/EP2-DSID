@@ -6,6 +6,8 @@ import job.JobExecutor;
 import job.processor.CountProcessor;
 import job.processor.LeastSquares;
 import job.processor.LeastSquaresProcessor;
+import job.processor.MeanProcessor;
+import job.processor.StandardDeviationProcessor;
 import job.reader.MultipleDatasetReader;
 import job.reader.SingleDatasetReader;
 import job.writer.PlotGraph;
@@ -105,6 +107,20 @@ public class DataAssembler extends Thread {
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
                 new LeastSquaresProcessor(x, y),
                 new PlotGraph(x,y));
+        job.execute();
+    }
+
+    public void meanProcess(List<Integer> years, String[] dimensions, String[] values){
+        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
+                new MeanProcessor(dimensions, values),
+                new PrintWriter());
+        job.execute();
+    }
+
+    public void standardDeviationProcess(List<Integer> years, String[] dimensions, String[] values){
+        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
+                new StandardDeviationProcessor(dimensions, values),
+                new PrintWriter());
         job.execute();
     }
 

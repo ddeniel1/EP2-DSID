@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 public class PlotGraph implements Writer<LeastSquares> {
 
-
     private final String xAxis;
     private final String yAxis;
 
@@ -35,7 +34,7 @@ public class PlotGraph implements Writer<LeastSquares> {
         }).collect(Collectors.toList());
         rows.parallelStream().forEachOrdered(row -> xy.add(row[0], row[1]));
         XYSeriesCollection data = new XYSeriesCollection(xy);
-        JFreeChart chart = ChartFactory.createScatterPlot("Teste", xAxis, yAxis, data, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart chart = ChartFactory.createScatterPlot(xAxis + " x " + yAxis, xAxis, yAxis, data, PlotOrientation.VERTICAL, false, true, false);
         XYPlot xyPlot = chart.getXYPlot();
         configurePlot(xyPlot);
         show(chart);
