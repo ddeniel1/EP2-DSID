@@ -1,13 +1,9 @@
 package job.processor;
 
 import DTO.GlobalSummary;
-import org.apache.spark.sql.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.apache.spark.sql.expressions.javalang.typed.avg;
+import org.apache.spark.sql.Column;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 
 
 public class MeanProcessor implements Processor<Dataset<GlobalSummary>, Dataset<Row>> {
@@ -19,6 +15,7 @@ public class MeanProcessor implements Processor<Dataset<GlobalSummary>, Dataset<
      */
     private String[] dimensions;
     private String[] values;
+
     public MeanProcessor(String[] dimensions, String[] values) {
         this.dimensions = dimensions;
         this.values = values;
@@ -26,14 +23,13 @@ public class MeanProcessor implements Processor<Dataset<GlobalSummary>, Dataset<
 
     @Override
     public Dataset<Row> process(Dataset<GlobalSummary> dataset) {
-        Column[] dimensions_col = new ProcessorUtils().stringToClass(dataset,dimensions);
+        Column[] dimensions_col = new ProcessorUtils().stringToClass(dataset, dimensions);
 
-        if (this.dimensions.length == 0){
+        if (this.dimensions.length == 0) {
             return dataset.
                     groupBy().
                     avg(this.values);
-        }
-        else{
+        } else {
             return dataset.
                     groupBy(dimensions_col).
                     avg(this.values);

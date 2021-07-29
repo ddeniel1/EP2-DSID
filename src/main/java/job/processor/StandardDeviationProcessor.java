@@ -1,16 +1,10 @@
 package job.processor;
 
 import DTO.GlobalSummary;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
-import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.functions;
-import org.apache.spark.sql.types.DataTypes;
-import org.apache.spark.sql.types.StructType;
 
 public class StandardDeviationProcessor implements Processor<Dataset<GlobalSummary>, Dataset<Row>> {
     /*
@@ -31,27 +25,24 @@ public class StandardDeviationProcessor implements Processor<Dataset<GlobalSumma
     public Dataset<Row> process(Dataset<GlobalSummary> dataset) {
 
         ProcessorUtils pu = new ProcessorUtils();
-        Column[] dimensions_col = pu.stringToClass(dataset,dimensions);
+        Column[] dimensions_col = pu.stringToClass(dataset, dimensions);
 
         Dataset<Row> datasetResult = null;
 
-        for (String val: values){
+        for (String val : values) {
             Dataset<Row> temp;
             if (this.dimensions.length != 0) {
                 temp = dataset.groupBy(dimensions_col).agg(functions.stddev(val));
-                if(datasetResult == null){
+                if (datasetResult == null) {
                     datasetResult = temp;
-                }
-                else {
+                } else {
                     datasetResult = datasetResult.join(temp, pu.convertListToSeq(dimensions));
                 }
-            }
-            else {
+            } else {
                 temp = dataset.groupBy().agg(functions.stddev(val));
-                if(datasetResult == null){
+                if (datasetResult == null) {
                     datasetResult = temp;
-                }
-                else {
+                } else {
                     datasetResult = datasetResult.crossJoin(temp);
                 }
             }

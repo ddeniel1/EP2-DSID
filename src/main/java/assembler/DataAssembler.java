@@ -8,6 +8,7 @@ import job.processor.LeastSquares;
 import job.processor.LeastSquaresProcessor;
 import job.reader.MultipleDatasetReader;
 import job.reader.SingleDatasetReader;
+import job.writer.LeastSquaresWriterTemp;
 import job.writer.PrintWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -91,10 +92,17 @@ public class DataAssembler extends Thread {
 
     }
 
-    public void processData(List<Integer> years, String[] dimensions){
+    public void countProcessData(List<Integer> years, String[] dimensions){
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(),years,DatasetUtils.schema),
                 new CountProcessor(dimensions),
                 new PrintWriter());
+        job.execute();
+    }
+
+    public void leastSquaresProcess(List<Integer> years, String x, String y){
+        Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(),years,DatasetUtils.schema),
+                new LeastSquaresProcessor(x, y),
+                new LeastSquaresWriterTemp());
         job.execute();
     }
 
