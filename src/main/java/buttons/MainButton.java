@@ -296,6 +296,7 @@ public class MainButton {
             if (e1.getValueIsAdjusting()) {
                 selection[0] = colums[list.getSelectedIndex()];
                 System.out.println(selection[0]);
+                xFrame.dispose();
             }
         });
         list.setVisibleRowCount(-1);

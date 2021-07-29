@@ -9,7 +9,6 @@ import job.processor.LeastSquaresProcessor;
 import job.reader.MultipleDatasetReader;
 import job.reader.SingleDatasetReader;
 import job.writer.PlotGraph;
-import job.writer.LeastSquaresWriterTemp;
 import job.writer.PrintWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -105,7 +104,7 @@ public class DataAssembler extends Thread {
     public void leastSquaresProcess(List<Integer> years, String x, String y) {
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
                 new LeastSquaresProcessor(x, y),
-                new LeastSquaresWriterTemp());
+                new PlotGraph());
         job.execute();
     }
 
@@ -149,7 +148,7 @@ public class DataAssembler extends Thread {
         return result;
     }
 
-    public synchronized void downloadFiles(List<Integer> yearsToDownload) {
+    public void downloadFiles(List<Integer> yearsToDownload) {
         for (Integer year : yearsToDownload) {
             new File(FileUtil.GSOD_FILES + year).mkdirs();
             LOGGER.info("Download do ano {}", year);
@@ -162,6 +161,7 @@ public class DataAssembler extends Thread {
                     LOGGER.error("Integridade do arquivo {} falhou, exclua a pasta e execute o programa novamente", year, new RuntimeException("Arquivo Corrompido"));
             } else LOGGER.error("Falha no download do arquivo {}", year);
         }
+
     }
 
     private boolean checkIntegrity(Integer year) {
