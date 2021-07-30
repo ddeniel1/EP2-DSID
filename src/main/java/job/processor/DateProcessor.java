@@ -9,7 +9,7 @@ import org.apache.spark.sql.functions;
 public class DateProcessor implements Processor<Dataset<GlobalSummary>, Dataset<GlobalSummary>> {
     /*
     Esse processor trunca a data:
-    trunc: String - year: trunca por ano, month trunca por mês, week trunca por semana, quarter trunca por trimestre
+    trunc: String - year trunca por ano, month trunca por mês, week trunca por semana, quarter trunca por trimestre
      */
     private final String trunc;
 
@@ -19,8 +19,10 @@ public class DateProcessor implements Processor<Dataset<GlobalSummary>, Dataset<
 
     @Override
     public Dataset<GlobalSummary> process(Dataset<GlobalSummary> dataset) {
+        System.out.println(trunc + "\n**********************************************************************************");
 
-        Column truncate = functions.trunc(functions.col("DATE"), this.trunc);
-        return dataset.withColumn("DATE", truncate).as(Encoders.bean(GlobalSummary.class));
+        Column truncate = functions.date_trunc(trunc, functions.col("DATE"));
+        Dataset<GlobalSummary> date = dataset.withColumn("DATE", truncate).as(Encoders.bean(GlobalSummary.class));
+        return date;
     }
 }

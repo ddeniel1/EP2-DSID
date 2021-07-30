@@ -103,7 +103,11 @@ public class FileUtil {
                 }
 
                 pw = new PrintWriter(GSOD_FILES + year + SEPARATOR + entry.getName());
-                stringBuilder = new StringBuilder(stringBuilder.toString().replaceAll("\",", ";").replaceAll("\"", "").replaceAll("\n\n", "\n").trim());
+                stringBuilder = new StringBuilder(stringBuilder.toString()
+//                        .replaceAll("\",", ";")
+//                        .replaceAll("\"", "")
+//                        .replaceAll(",", ";")
+                        .replaceAll("\n\n", "\n").trim());
 
                 pw.println(stringBuilder);
                 pw.flush();
