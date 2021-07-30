@@ -25,13 +25,15 @@ public class PlotGraph implements Writer<LeastSquares> {
 
     @Override
     public void write(LeastSquares input) throws Exception {
+
         XYSeries xy = new XYSeries("");
-        List<Double[]> rows = input.data.collectAsList().stream().parallel().map(value -> {
+        List<Double[]> rows = input.data.dropDuplicates().collectAsList().stream().parallel().map(value -> {
             Double[] result = new Double[2];
             result[0] = value.getDouble(0);
             result[1] = value.getDouble(1);
             return result;
         }).collect(Collectors.toList());
+        System.out.println(rows.size());
         rows.parallelStream().forEachOrdered(row -> xy.add(row[0], row[1]));
         XYSeries xySeries = new XYSeries("");
         Double xMin = input.xMin;

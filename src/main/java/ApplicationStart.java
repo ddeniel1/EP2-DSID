@@ -1,6 +1,5 @@
 import assembler.DataAssembler;
 import buttons.MainButton;
-import util.DateUtils;
 
 import javax.swing.JFrame;
 import java.awt.GridLayout;
@@ -24,15 +23,15 @@ public class ApplicationStart implements Runnable {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridLayout(6, 2));
-        frame.add(MainButton.selectYearsButton(yearsToDownload, assembler));
+        frame.add(MainButton.selectYearsToDownloadButton(yearsToDownload, assembler));
         frame.add(MainButton.loadYearButton(selectedYears));
         frame.add(MainButton.checkFilesButton(assembler, yearsToDownload));
-        frame.add(MainButton.saveButton());
+        frame.add(MainButton.selectDateRange());
         frame.add(MainButton.unzipAndCompileFilesButton(assembler, yearsToDownload));
         frame.add(MainButton.getCountButton(assembler, selectedYears));
         frame.add(MainButton.leastSquaresButton(assembler, selectedYears));
         frame.add(MainButton.meanProcessorButton(assembler, selectedYears));
-        frame.add(MainButton.standardDeviationProcessorButton(assembler, selectedYears, DateUtils.getDate()));
+        frame.add(MainButton.standardDeviationProcessorButton(assembler, selectedYears));
         frame.add(MainButton.quitProgramButton(frame));
         frame.pack();
         frame.setLocationRelativeTo(null);

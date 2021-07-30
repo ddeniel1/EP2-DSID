@@ -9,13 +9,16 @@ import util.DateUtils;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -37,6 +40,12 @@ public class MainButton {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         frame.dispose();
+                        String years = "";
+                        for (Integer integer : selectedYears) {
+                            years = years + ", "+ integer;
+                        }
+                        years = years.replaceFirst(",","");
+                        createConfirmationDialog("Anos selecionados para processamento:",years);
                     }
                 });
                 confirmationButton.setBounds(690, 200, 100, 30);
@@ -52,8 +61,8 @@ public class MainButton {
         });
     }
 
-    public static Component saveButton() {
-        return new JButton(new AbstractAction("Save") {
+    public static Component selectDateRange() {
+        return new JButton(new AbstractAction("Select Date Range") {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -69,7 +78,10 @@ public class MainButton {
                         DateUtils.setDate(colums[list.getSelectedIndex()]);
                         System.out.println(DateUtils.getDate());
 
-                    } else frame.dispose();
+                    } else {
+                        frame.dispose();
+                        createConfirmationDialog("Selected range: " + DateUtils.getDate());
+                    }
                 });
                 list.setVisibleRowCount(-1);
                 list.setVisible(true);
@@ -85,7 +97,7 @@ public class MainButton {
         });
     }
 
-    public static Component selectYearsButton(List<Integer> yearsToDownload, DataAssembler assembler) {
+    public static Component selectYearsToDownloadButton(List<Integer> yearsToDownload, DataAssembler assembler) {
         return new JButton(new AbstractAction("Select years to download") {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -99,7 +111,9 @@ public class MainButton {
                 selectYears.setLayout(null);
                 selectYears.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 selectYears.setFocusable(true);
+                JCheckBox checkBoxAll = getCheckBoxAll(yearsToDownload);
                 createJBoxForAllYears(selectYears, checkboxes, yearsToDownload);
+                selectYears.add(checkBoxAll);
 
 
                 JButton confirmationButton = new JButton(new AbstractAction("Confirm") {
@@ -163,6 +177,7 @@ public class MainButton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 assembler.unzipAndCompileFiles(yearsToDownload);
+                createConfirmationDialog("Files Unzipped!");
             }
         });
     }
@@ -176,6 +191,7 @@ public class MainButton {
                     addAllYears(yearsToDownload);
                 }
                 yearsToDownload.removeAll(assembler.checkFiles());
+                createConfirmationDialog("Files Verified!");
             }
         });
     }
@@ -254,6 +270,7 @@ public class MainButton {
                     public void actionPerformed(ActionEvent e) {
                         Executors.newSingleThreadExecutor()
                                 .execute(() -> assembler.leastSquaresProcess(years, xSelection[0], ySelection[0]));
+                        createConfirmationDialog("Gerando gráfico...", "Isso deve levar até 4 minutos!");
                         frame.dispose();
                     }
                 });
@@ -329,7 +346,7 @@ public class MainButton {
         });
     }
 
-    public static Component standardDeviationProcessorButton(DataAssembler assembler, List<Integer> years, String date) {
+    public static Component standardDeviationProcessorButton(DataAssembler assembler, List<Integer> years) {
         return new JButton(new AbstractAction("Obter desvio padrão") {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -375,7 +392,7 @@ public class MainButton {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         Executors.newSingleThreadExecutor()
-                                .execute(() -> assembler.standardDeviationProcess(years, xSelection.toArray(String[]::new), ySelection.toArray(String[]::new), date));
+                                .execute(() -> assembler.standardDeviationProcess(years, xSelection.toArray(String[]::new), ySelection.toArray(String[]::new)));
                         frame.dispose();
                     }
                 });
@@ -489,6 +506,7 @@ public class MainButton {
         for (int i = 1929; i <= 2016; i++) {
             Integer valueOfI = i;
             JCheckBox checkbox1 = new JCheckBox(String.valueOf(valueOfI), yearsToDownload.contains(valueOfI));
+            checkbox1.setName(String.valueOf(valueOfI));
             checkbox1.addItemListener(e1 -> {
                 if (yearsToDownload.contains(valueOfI)) {
                     yearsToDownload.remove(valueOfI);
@@ -502,6 +520,11 @@ public class MainButton {
             checkbox1.setVisible(true);
             checkboxes.add(checkbox1);
         }
+
+        checkboxes.forEach(selectYears::add);
+    }
+
+    private static JCheckBox getCheckBoxAll(List<Integer> yearsToDownload) {
         JCheckBox checkBoxAll = new JCheckBox("all", yearsToDownload.size() == 88);
         checkBoxAll.addItemListener(e1 -> {
             if (!yearsToDownload.isEmpty() && yearsToDownload.size() < 88) {
@@ -514,11 +537,29 @@ public class MainButton {
         });
         checkBoxAll.setBounds(530, 210, 60, 20);
         checkBoxAll.setVisible(true);
-        checkboxes.add(checkBoxAll);
-        checkboxes.forEach(selectYears::add);
+        return checkBoxAll;
     }
 
     private static void addAllYears(List<Integer> yearsPaths) {
         for (int i = 1929; i <= 2016; i++) yearsPaths.add(i);
+    }
+
+    private static void createConfirmationDialog(String title, String message) {
+        JFrame f = new JFrame();
+        f.setLayout(null);
+        JDialog d = new JDialog(f, title, true);
+        d.setLayout(new FlowLayout());
+        JButton b = new JButton("OK");
+        b.addActionListener(e -> d.setVisible(false));
+        d.add(new JLabel(message));
+        d.add(b);
+        d.setLocationRelativeTo(null);
+        f.setLocationRelativeTo(null);
+        d.setSize(300, 100);
+        d.setVisible(true);
+    }
+
+    private static void createConfirmationDialog(String message) {
+        createConfirmationDialog(message, message);
     }
 }

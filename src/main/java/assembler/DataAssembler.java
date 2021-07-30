@@ -120,9 +120,9 @@ public class DataAssembler extends Thread {
         job.execute();
     }
 
-    public void standardDeviationProcess(List<Integer> years, String[] dimensions, String[] values, String date) {
+    public void standardDeviationProcess(List<Integer> years, String[] dimensions, String[] values) {
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
-                Processor.chainProcess(new DateProcessor(date), new StandardDeviationProcessor(dimensions, values)),
+                Processor.chainProcess(new DateProcessor(DateUtils.getDate()), new StandardDeviationProcessor(dimensions, values)),
                 new PrintWriter());
         job.execute();
     }
