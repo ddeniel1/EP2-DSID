@@ -3,12 +3,18 @@ package job.writer;
 import job.processor.LeastSquares;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,13 +70,25 @@ public class PlotGraph implements Writer<LeastSquares> {
         xyPlot.setDomainAxis(0, xyPlot2.getDomainAxis());
         xyPlot.setRangeAxis(0, xyPlot2.getRangeAxis());
         configurePlot(xyPlot);
-        show(chart);
+
+        show(chart, input);
 
     }
 
-    private void show(JFreeChart chart) {
-        ChartFrame frame = new ChartFrame("plot", chart);
+    private void show(JFreeChart chart, LeastSquares input) {
+        JFrame frame = new JFrame("Resultado");
+        frame.setLayout(new BorderLayout());
+        ChartFrame chartFrame = new ChartFrame("plot", chart);
+        DefaultTableModel tableModel = new DefaultTableModel();
+        tableModel.addColumn("A");
+        tableModel.addColumn("B");
+        tableModel.addRow(new Double[]{input.a,input.b});
+        frame.add(new JScrollPane(new JTable(tableModel)),BorderLayout.SOUTH);
+        ChartPanel chartPanel = chartFrame.getChartPanel();
+        chartPanel.setVisible(true);
+        frame.add(chartPanel,BorderLayout.NORTH);
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 

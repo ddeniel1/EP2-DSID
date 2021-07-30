@@ -167,6 +167,7 @@ public class MainButton {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
+                System.exit(0);
             }
         });
     }
