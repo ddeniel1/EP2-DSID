@@ -35,7 +35,7 @@ public class PrintWriter implements Writer<Dataset<Row>>, Serializable {
         });
 
         JFrame frame = new JFrame();
-        frame.setSize(700,300);
+        frame.setSize(700, 300);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.add(new JScrollPane(new JTable(tableModel)));
@@ -47,7 +47,7 @@ public class PrintWriter implements Writer<Dataset<Row>>, Serializable {
         for (int i = 0; i < columns.length; i++) {
             String column = columns[i];
             Option<Object> option = valuesMap.get(column);
-            objects[i]= option.get();
+            objects[i] = option.get();
         }
         return objects;
     }
