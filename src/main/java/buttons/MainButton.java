@@ -362,20 +362,18 @@ public class MainButton {
         xFrame.setLayout(null);
         xFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         xFrame.setFocusable(true);
-        xFrame.setSize(1000, 500);
-        List<String> columsToProcess = new ArrayList<>();
+        xFrame.setSize(1000, 350);
         List<JCheckBox> checkBoxes = new ArrayList<>();
 
-        addAllCollums(xFrame, columsToProcess, checkBoxes, colums);
+        addAllCollums(xFrame, selection, checkBoxes, colums);
 
         JButton confirmationButton = new JButton(new AbstractAction("Confirm") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selection.addAll(columsToProcess);
                 xFrame.dispose();
             }
         });
-        confirmationButton.setBounds(900, 400, 120, 30);
+        confirmationButton.setBounds(500, 250, 120, 30);
         confirmationButton.setVisible(true);
         xFrame.add(confirmationButton);
         xFrame.setLocationRelativeTo(null);
@@ -425,7 +423,7 @@ public class MainButton {
             String colum = colums[i];
 //                    System.out.println(colum);
 
-            JCheckBox checkbox1 = new JCheckBox(colum, false);
+            JCheckBox checkbox1 = new JCheckBox(colum, columsToProcess.contains(colum));
             checkbox1.addItemListener(e1 -> {
                 if (columsToProcess.contains(colum)) {
                     columsToProcess.remove(colum);
@@ -444,7 +442,7 @@ public class MainButton {
             if (!columsToProcess.isEmpty() && columsToProcess.size() < 27) {
                 columsToProcess.clear();
                 columsToProcess.addAll(Arrays.asList(colums));
-            } else if (columsToProcess.size() == 88) {
+            } else if (columsToProcess.size() == 27) {
                 columsToProcess.clear();
             } else columsToProcess.addAll(Arrays.asList(colums));
 
