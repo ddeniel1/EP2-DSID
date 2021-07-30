@@ -4,6 +4,7 @@ import assembler.DataAssembler;
 import org.apache.spark.sql.types.StructField;
 import scala.collection.Iterator;
 import util.DatasetUtils;
+import util.DateUtils;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -15,7 +16,6 @@ import javax.swing.ListSelectionModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -52,14 +52,35 @@ public class MainButton {
         });
     }
 
-    public static Component saveButton(JFrame frame) {
+    public static Component saveButton() {
         return new JButton(new AbstractAction("Save") {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                FileDialog fd = new FileDialog(frame, "Test", FileDialog.SAVE);
-                fd.setVisible(true);
-                System.out.println(fd.getFile());
+                JFrame frame = new JFrame("Selecionar Colunas");
+                frame.setLayout(new BorderLayout());
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                String[] colums = new String[]{"year", "month", "week", "quarter", "day"};
+                JList list = new JList(colums); //data has type Object[]
+                list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                list.setLayoutOrientation(JList.VERTICAL);
+                list.addListSelectionListener(e1 -> {
+                    if (e1.getValueIsAdjusting()) {
+                        DateUtils.setDate(colums[list.getSelectedIndex()]);
+                        System.out.println(DateUtils.getDate());
+
+                    } else frame.dispose();
+                });
+                list.setVisibleRowCount(-1);
+                list.setVisible(true);
+                JScrollPane listScroller = new JScrollPane(list);
+                listScroller.setPreferredSize(new Dimension(250, 80));
+                listScroller.setVisible(true);
+
+                frame.setSize(300, 200);
+                frame.add(listScroller);
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
     }
@@ -93,13 +114,23 @@ public class MainButton {
                 confirmationButton.setVisible(true);
                 JCheckBox checkBoxOthers = new JCheckBox("invert.", yearsToDownload.size() == 88);
                 checkBoxOthers.addItemListener(e1 -> {
-                    if (!yearsToDownload.isEmpty() && yearsToDownload.size() < 88) {
+                    selectYears.dispose();
+                    if (!yearsToDownload.isEmpty() && yearsToDownload.size() <= 88) {
                         List<Integer> allYears = new ArrayList<>();
                         addAllYears(allYears);
                         allYears.removeAll(yearsToDownload);
                         yearsToDownload.clear();
                         yearsToDownload.addAll(allYears);
-                    } else addAllYears(yearsToDownload);
+                        for (JCheckBox checkbox : checkboxes) {
+                            checkbox.setSelected(yearsToDownload.contains(Integer.parseInt(checkbox.getName())));
+                        }
+                    } else {
+                        addAllYears(yearsToDownload);
+                        checkboxes.forEach(jCheckBox -> jCheckBox.setSelected(true));
+                    }
+
+                    selectYears.setVisible(true);
+                    System.out.println(yearsToDownload.size());
 
                 });
                 checkBoxOthers.setBounds(590, 210, 60, 20);
@@ -237,7 +268,7 @@ public class MainButton {
         });
     }
 
-    public static Component meanProcessorButton(DataAssembler assembler, List<Integer> years){
+    public static Component meanProcessorButton(DataAssembler assembler, List<Integer> years) {
         return new JButton(new AbstractAction("Obter médias") {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -297,7 +328,8 @@ public class MainButton {
             }
         });
     }
-    public static Component standardDeviationProcessorButton(DataAssembler assembler, List<Integer> years){
+
+    public static Component standardDeviationProcessorButton(DataAssembler assembler, List<Integer> years, String date) {
         return new JButton(new AbstractAction("Obter desvio padrão") {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -343,7 +375,7 @@ public class MainButton {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         Executors.newSingleThreadExecutor()
-                                .execute(() -> assembler.standardDeviationProcess(years, xSelection.toArray(String[]::new), ySelection.toArray(String[]::new)));
+                                .execute(() -> assembler.standardDeviationProcess(years, xSelection.toArray(String[]::new), ySelection.toArray(String[]::new), date));
                         frame.dispose();
                     }
                 });

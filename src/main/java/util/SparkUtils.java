@@ -34,7 +34,8 @@ public final class SparkUtils {
         }
         return sparkSession.read()
                 .option("header", true)
-                .option("sep", ";")
+                .option("sep", ",")
+                .option("quote","\"")
                 .schema(schema)
 //                .option("inferSchema","true")
                 .csv(bucket);

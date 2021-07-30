@@ -28,7 +28,7 @@ public class MultipleDatasetReader implements Reader<Dataset<GlobalSummary>> {
 
         Dataset<Row> dataset = SparkUtils.readCsv(sparkSession, FileUtil.GSOD_FILES + inputPath.get(0) + "*/*.csv", schema);
         for (int i = 1; i < inputPath.size(); i++) {
-            dataset.union(SparkUtils.readCsv(sparkSession, FileUtil.GSOD_FILES + inputPath.get(i) + "*/*.csv", schema));
+            dataset = dataset.union(SparkUtils.readCsv(sparkSession, FileUtil.GSOD_FILES + inputPath.get(i) + "*/*.csv", schema));
         }
 
         return dataset.as(Encoders.bean(GlobalSummary.class));

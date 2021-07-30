@@ -33,9 +33,34 @@ public class PlotGraph implements Writer<LeastSquares> {
             return result;
         }).collect(Collectors.toList());
         rows.parallelStream().forEachOrdered(row -> xy.add(row[0], row[1]));
+        XYSeries xySeries = new XYSeries("");
+        Double xMin = input.xMin;
+        Double xMax = input.xMax;
+        double range = xMax - xMin;
+        range = range / 100;
+        for (int i = 0; i <= 100; i++) {
+            Double x = xMin + (range * i);
+            Double y = input.a + (input.b * x);
+            xySeries.add(x, y);
+        }
+
         XYSeriesCollection data = new XYSeriesCollection(xy);
+        XYSeriesCollection reta = new XYSeriesCollection(xySeries);
         JFreeChart chart = ChartFactory.createScatterPlot(xAxis + " x " + yAxis, xAxis, yAxis, data, PlotOrientation.VERTICAL, false, true, false);
+        JFreeChart chart2 = ChartFactory.createXYLineChart(xAxis + " x " + yAxis, xAxis, yAxis, reta, PlotOrientation.VERTICAL, false, true, false);
         XYPlot xyPlot = chart.getXYPlot();
+        XYPlot xyPlot2 = chart2.getXYPlot();
+
+
+        xyPlot.setDataset(1, xyPlot.getDataset());
+        xyPlot.setRenderer(1, xyPlot.getRenderer());
+        xyPlot.setDomainAxis(1, xyPlot.getDomainAxis());
+        xyPlot.setRangeAxis(1, xyPlot.getRangeAxis());
+
+        xyPlot.setDataset(0, xyPlot2.getDataset());
+        xyPlot.setRenderer(0, xyPlot2.getRenderer());
+        xyPlot.setDomainAxis(0, xyPlot2.getDomainAxis());
+        xyPlot.setRangeAxis(0, xyPlot2.getRangeAxis());
         configurePlot(xyPlot);
         show(chart);
 

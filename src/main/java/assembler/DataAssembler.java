@@ -4,9 +4,11 @@ import DTO.GlobalSummary;
 import job.Job;
 import job.JobExecutor;
 import job.processor.CountProcessor;
+import job.processor.DateProcessor;
 import job.processor.LeastSquares;
 import job.processor.LeastSquaresProcessor;
 import job.processor.MeanProcessor;
+import job.processor.Processor;
 import job.processor.StandardDeviationProcessor;
 import job.reader.MultipleDatasetReader;
 import job.reader.SingleDatasetReader;
@@ -17,6 +19,7 @@ import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.DatasetUtils;
+import util.DateUtils;
 import util.FileUtil;
 import util.IntegrityCheckConst;
 import util.SparkUtils;
@@ -98,7 +101,7 @@ public class DataAssembler extends Thread {
 
     public void countProcessData(List<Integer> years, String[] dimensions) {
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
-                new CountProcessor(dimensions),
+                Processor.chainProcess(new DateProcessor(DateUtils.getDate()),new CountProcessor(dimensions)),
                 new PrintWriter());
         job.execute();
     }
@@ -112,14 +115,14 @@ public class DataAssembler extends Thread {
 
     public void meanProcess(List<Integer> years, String[] dimensions, String[] values){
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
-                new MeanProcessor(dimensions, values),
+                Processor.chainProcess(new DateProcessor(DateUtils.getDate()),new MeanProcessor(dimensions, values)),
                 new PrintWriter());
         job.execute();
     }
 
-    public void standardDeviationProcess(List<Integer> years, String[] dimensions, String[] values){
+    public void standardDeviationProcess(List<Integer> years, String[] dimensions, String[] values, String date){
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
-                new StandardDeviationProcessor(dimensions, values),
+                Processor.chainProcess(new DateProcessor(date),new StandardDeviationProcessor(dimensions, values)),
                 new PrintWriter());
         job.execute();
     }
@@ -140,7 +143,7 @@ public class DataAssembler extends Thread {
     }
 
     public void unzipAndCompileFiles(List<Integer> years) {
-        years.parallelStream().forEach(year -> {
+        years.forEach(year -> {
             if (!containsCsvFile(year)) {
                 FileUtil.unzipToStringList(year);
             }
