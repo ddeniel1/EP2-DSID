@@ -19,10 +19,8 @@ public class DateProcessor implements Processor<Dataset<GlobalSummary>, Dataset<
 
     @Override
     public Dataset<GlobalSummary> process(Dataset<GlobalSummary> dataset) {
-        System.out.println(trunc + "\n**********************************************************************************");
 
         Column truncate = functions.date_trunc(trunc, functions.col("DATE"));
-        Dataset<GlobalSummary> date = dataset.withColumn("DATE", truncate).as(Encoders.bean(GlobalSummary.class));
-        return date;
+        return dataset.withColumn("DATE", truncate).as(Encoders.bean(GlobalSummary.class));
     }
 }

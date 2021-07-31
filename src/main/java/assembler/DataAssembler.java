@@ -1,21 +1,17 @@
 package assembler;
 
-import DTO.GlobalSummary;
+import buttons.MainFrame;
 import job.Job;
 import job.JobExecutor;
 import job.processor.CountProcessor;
 import job.processor.DateProcessor;
-import job.processor.LeastSquares;
 import job.processor.LeastSquaresProcessor;
 import job.processor.MeanProcessor;
 import job.processor.Processor;
 import job.processor.StandardDeviationProcessor;
 import job.reader.MultipleDatasetReader;
-import job.reader.SingleDatasetReader;
-import job.writer.PlotGraph;
+import job.writer.PlotGraphWriter;
 import job.writer.PrintWriter;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.DatasetUtils;
@@ -46,59 +42,6 @@ public class DataAssembler extends Thread {
         LOGGER.info("Thread running");
     }
 
-    public void oldRun() throws Exception {
-
-
-        LOGGER.info("Checando arquivos");
-
-        List<Integer> yearsToDownload = checkFiles();
-
-        LOGGER.info("Iniciando o download de {} arquivos", yearsToDownload.size());
-
-        downloadFiles(yearsToDownload);
-
-        LOGGER.info("Unzipping files");
-
-        unzipAndCompileFiles();
-
-
-        LOGGER.info("Initializing spark");
-
-        String yearRegex = "1999";
-        Dataset<GlobalSummary> read = new SingleDatasetReader(SparkUtils.buildSparkSession(), FileUtil.GSOD_FILES + yearRegex + "*/*.csv", DatasetUtils.schema).read();
-
-        System.out.println("Esquema" + read.schema());
-        read.show(20);
-        Dataset<Row> describe = read.describe();
-        describe.show();
-//        read.select(read.col("*")).where(read.col("DATE").like("2001-05-18")).show(false);
-//        System.out.println("Teste");
-//        read.select(read.col("*")).filter("NAME is not NULL").orderBy("NAME").show(20);
-
-
-        String[] dimensions = new String[]{"NAME", "ELEVATION"};
-        String[] values = new String[]{"TEMP", "DEWP"};
-//        Dataset<Row> meanDataset = new MeanProcessor(dimensions, values).process(read);
-//        meanDataset.show(20);
-//        Dataset<Row> standardDeviantionDataset = new StandardDeviationProcessor(dimensions, values).process(read);
-//        standardDeviantionDataset.show(20);
-
-        String x = "TEMP";
-        String y = "DEWP";
-        LeastSquares ls = new LeastSquaresProcessor(x, y).process(read);
-        System.out.println(ls.toString());
-        ls.data.show(20);
-        ls.describe.show(20);
-
-        new PlotGraph(x, y).write(ls);
-
-//        Dataset<GlobalSummary> a = new DateProcessor("month").process(read);
-
-//        Dataset<Row> a = new StandardDeviationProcessorCopy(dimensions, values).process(read);
-//        a.show(20);
-
-    }
-
     public void countProcessData(List<Integer> years, String[] dimensions) {
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
                 Processor.chainProcess(new DateProcessor(DateUtils.getDate()), new CountProcessor(dimensions)),
@@ -109,7 +52,7 @@ public class DataAssembler extends Thread {
     public void leastSquaresProcess(List<Integer> years, String x, String y) {
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
                 new LeastSquaresProcessor(x, y),
-                new PlotGraph(x, y));
+                new PlotGraphWriter(x, y));
         job.execute();
     }
 
@@ -120,9 +63,9 @@ public class DataAssembler extends Thread {
         job.execute();
     }
 
-    public void standardDeviationProcess(List<Integer> years, String[] dimensions, String[] values, String date) {
+    public void standardDeviationProcess(List<Integer> years, String[] dimensions, String[] values) {
         Job job = new JobExecutor<>(new MultipleDatasetReader(SparkUtils.buildSparkSession(), years, DatasetUtils.schema),
-                Processor.chainProcess(new DateProcessor(date), new StandardDeviationProcessor(dimensions, values)),
+                Processor.chainProcess(new DateProcessor(DateUtils.getDate()), new StandardDeviationProcessor(dimensions, values)),
                 new PrintWriter());
         job.execute();
     }
@@ -180,6 +123,7 @@ public class DataAssembler extends Thread {
                     LOGGER.error("Integridade do arquivo {} falhou, exclua a pasta e execute o programa novamente", year, new RuntimeException("Arquivo Corrompido"));
             } else LOGGER.error("Falha no download do arquivo {}", year);
         }
+        MainFrame.createConfirmationDialog("Download finalizado com sucesso!");
 
     }
 

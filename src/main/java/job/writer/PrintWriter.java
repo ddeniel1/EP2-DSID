@@ -16,7 +16,7 @@ import java.util.Arrays;
 
 public class PrintWriter implements Writer<Dataset<Row>>, Serializable {
     @Override
-    public void write(Dataset<Row> input) throws Exception {
+    public void write(Dataset<Row> input) {
 
         input = input.cache();
 

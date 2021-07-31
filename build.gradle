@@ -62,7 +62,7 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-task runAssembler(type: JavaExec){
+task run(type: JavaExec){
     classpath = sourceSets.main.runtimeClasspath
-    main = "DataAssemblerApplication"
+    main = "ApplicationStart"
 }
