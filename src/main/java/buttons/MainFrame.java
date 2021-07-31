@@ -26,7 +26,70 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class MainButton {
+public class MainFrame {
+
+    public static Component selectYearsToDownloadButton(List<Integer> yearsToDownload, DataAssembler assembler) {
+        return new JButton(new AbstractAction("Select years to download") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame selectYears = new JFrame("Select years to download");
+                selectYears.requestFocus();
+                Label label = new Label();
+                label.setAlignment(Label.CENTER);
+                label.setSize(400, 100);
+                List<JCheckBox> checkboxes = new ArrayList<>();
+                selectYears.setLayout(null);
+                selectYears.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                selectYears.setFocusable(true);
+                JCheckBox checkBoxAll = getCheckBoxAll(yearsToDownload);
+                createJBoxForAllYears(selectYears, checkboxes, yearsToDownload);
+                selectYears.add(checkBoxAll);
+
+
+                JButton confirmationButton = new JButton(new AbstractAction("Confirm") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Executors.newSingleThreadExecutor()
+                                .execute(() -> assembler.downloadFiles(yearsToDownload));
+                        createConfirmationDialog("Download initialized","o Download foi iniciado, é recomendar esperar acabar, mesmo que demore");
+                        selectYears.dispose();
+                    }
+                });
+                confirmationButton.setBounds(690, 220, 100, 30);
+                confirmationButton.setVisible(true);
+                JCheckBox checkBoxOthers = new JCheckBox("invert.", yearsToDownload.size() == 88);
+                checkBoxOthers.addItemListener(e1 -> {
+                    selectYears.dispose();
+                    if (!yearsToDownload.isEmpty() && yearsToDownload.size() <= 88) {
+                        List<Integer> allYears = new ArrayList<>();
+                        addAllYears(allYears);
+                        allYears.removeAll(yearsToDownload);
+                        yearsToDownload.clear();
+                        yearsToDownload.addAll(allYears);
+                        for (JCheckBox checkbox : checkboxes) {
+                            checkbox.setSelected(yearsToDownload.contains(Integer.parseInt(checkbox.getName())));
+                        }
+                    } else {
+                        addAllYears(yearsToDownload);
+                        checkboxes.forEach(jCheckBox -> jCheckBox.setSelected(true));
+                    }
+
+                    selectYears.setVisible(true);
+
+                });
+                checkBoxOthers.setBounds(590, 210, 60, 20);
+                checkBoxOthers.setVisible(true);
+                selectYears.add(checkBoxOthers);
+
+
+                selectYears.add(confirmationButton);
+                selectYears.add(label);
+                selectYears.setSize(800, 300);
+                selectYears.setLocationRelativeTo(null);
+                selectYears.setVisible(true);
+            }
+        });
+    }
 
     public static Component loadYearButton(List<Integer> selectedYears) {
         return new JButton(new AbstractAction("Select Year") {
@@ -42,10 +105,10 @@ public class MainButton {
                         frame.dispose();
                         String years = "";
                         for (Integer integer : selectedYears) {
-                            years = years + ", "+ integer;
+                            years = years + ", " + integer;
                         }
-                        years = years.replaceFirst(",","");
-                        createConfirmationDialog("Anos selecionados para processamento:",years);
+                        years = years.replaceFirst(",", "");
+                        createConfirmationDialog("Anos selecionados para processamento:", years);
                     }
                 });
                 confirmationButton.setBounds(690, 200, 100, 30);
@@ -76,7 +139,6 @@ public class MainButton {
                 list.addListSelectionListener(e1 -> {
                     if (e1.getValueIsAdjusting()) {
                         DateUtils.setDate(colums[list.getSelectedIndex()]);
-                        System.out.println(DateUtils.getDate());
 
                     } else {
                         frame.dispose();
@@ -93,70 +155,6 @@ public class MainButton {
                 frame.add(listScroller);
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
-            }
-        });
-    }
-
-    public static Component selectYearsToDownloadButton(List<Integer> yearsToDownload, DataAssembler assembler) {
-        return new JButton(new AbstractAction("Select years to download") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println(yearsToDownload.size());
-                JFrame selectYears = new JFrame("Select years to download");
-                selectYears.requestFocus();
-                Label label = new Label();
-                label.setAlignment(Label.CENTER);
-                label.setSize(400, 100);
-                List<JCheckBox> checkboxes = new ArrayList<>();
-                selectYears.setLayout(null);
-                selectYears.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                selectYears.setFocusable(true);
-                JCheckBox checkBoxAll = getCheckBoxAll(yearsToDownload);
-                createJBoxForAllYears(selectYears, checkboxes, yearsToDownload);
-                selectYears.add(checkBoxAll);
-
-
-                JButton confirmationButton = new JButton(new AbstractAction("Confirm") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Executors.newSingleThreadExecutor()
-                                .execute(() -> assembler.downloadFiles(yearsToDownload));
-                        selectYears.dispose();
-                    }
-                });
-                confirmationButton.setBounds(690, 220, 100, 30);
-                confirmationButton.setVisible(true);
-                JCheckBox checkBoxOthers = new JCheckBox("invert.", yearsToDownload.size() == 88);
-                checkBoxOthers.addItemListener(e1 -> {
-                    selectYears.dispose();
-                    if (!yearsToDownload.isEmpty() && yearsToDownload.size() <= 88) {
-                        List<Integer> allYears = new ArrayList<>();
-                        addAllYears(allYears);
-                        allYears.removeAll(yearsToDownload);
-                        yearsToDownload.clear();
-                        yearsToDownload.addAll(allYears);
-                        for (JCheckBox checkbox : checkboxes) {
-                            checkbox.setSelected(yearsToDownload.contains(Integer.parseInt(checkbox.getName())));
-                        }
-                    } else {
-                        addAllYears(yearsToDownload);
-                        checkboxes.forEach(jCheckBox -> jCheckBox.setSelected(true));
-                    }
-
-                    selectYears.setVisible(true);
-                    System.out.println(yearsToDownload.size());
-
-                });
-                checkBoxOthers.setBounds(590, 210, 60, 20);
-                checkBoxOthers.setVisible(true);
-                selectYears.add(checkBoxOthers);
-
-
-                selectYears.add(confirmationButton);
-                selectYears.add(label);
-                selectYears.setSize(800, 300);
-                selectYears.setLocationRelativeTo(null);
-                selectYears.setVisible(true);
             }
         });
     }
@@ -271,8 +269,8 @@ public class MainButton {
                     public void actionPerformed(ActionEvent e) {
                         Executors.newSingleThreadExecutor()
                                 .execute(() -> assembler.leastSquaresProcess(years, xSelection[0], ySelection[0]));
-                        createConfirmationDialog("Gerando gráfico...", "Isso deve levar até 4 minutos!");
                         frame.dispose();
+                        createConfirmationDialog("Gerando gráfico...", "Isso deve levar até 4 minutos!");
                     }
                 });
 
@@ -290,43 +288,14 @@ public class MainButton {
         return new JButton(new AbstractAction("Obter médias") {
             @Override
             public void actionPerformed(ActionEvent e) {
+                final List<String> xSelection = new ArrayList<>();
+                final List<String> ySelection = new ArrayList<>();
                 JFrame frame = new JFrame("Selecionar Colunas");
                 frame.setLayout(null);
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                final List<String> xSelection = new ArrayList<>();
-                JButton xButton = new JButton(new AbstractAction("Selecionar dimensões") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        JFrame xFrame = new JFrame("Selecionar dimensões");
-                        createYearButtons(xFrame, xSelection, DatasetUtils.schema.fieldNames());
-                    }
-                });
-                xButton.setBounds(50, 50, 200, 50);
-                frame.add(xButton);
-                final List<String> ySelection = new ArrayList<>();
+                getDimensionList(xSelection, frame);
 
-                JButton yButton = new JButton(new AbstractAction("Selecionar valores") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        JFrame xFrame = new JFrame("Selecionar valores");
-                        Iterator<StructField> iterator = DatasetUtils.schema.iterator();
-                        List<String> columsList = new ArrayList();
-                        while (iterator.hasNext()) {
-                            StructField next = iterator.next();
-                            if (next.dataType().typeName().equals("double")) {
-                                columsList.add(next.name());
-                            }
-                        }
-                        String[] colums = columsList.toArray(String[]::new);
-                        createYearButtons(xFrame, ySelection, colums);
-                    }
-                });
-
-                yButton.setBounds(300, 50, 200, 50);
-                frame.add(yButton);
-
-
-                frame.setSize(550, 300);
+                getValueList(ySelection, frame);
 
                 JButton confirmationButton = new JButton(new AbstractAction("Confirm") {
                     @Override
@@ -347,6 +316,43 @@ public class MainButton {
         });
     }
 
+    private static void getDimensionList(List<String> xSelection, JFrame frame) {
+        JButton xButton = new JButton(new AbstractAction("Selecionar dimensões") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame xFrame = new JFrame("Selecionar dimensões");
+                createYearButtons(xFrame, xSelection, DatasetUtils.schema.fieldNames());
+            }
+        });
+        xButton.setBounds(50, 50, 200, 50);
+        frame.add(xButton);
+    }
+
+    private static void getValueList(List<String> ySelection, JFrame frame) {
+        JButton yButton = new JButton(new AbstractAction("Selecionar valores") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame xFrame = new JFrame("Selecionar valores");
+                Iterator<StructField> iterator = DatasetUtils.schema.iterator();
+                List<String> columsList = new ArrayList();
+                while (iterator.hasNext()) {
+                    StructField next = iterator.next();
+                    if (next.dataType().typeName().equals("double")) {
+                        columsList.add(next.name());
+                    }
+                }
+                String[] colums = columsList.toArray(String[]::new);
+                createYearButtons(xFrame, ySelection, colums);
+            }
+        });
+
+        yButton.setBounds(300, 50, 200, 50);
+        frame.add(yButton);
+
+
+        frame.setSize(550, 300);
+    }
+
     public static Component standardDeviationProcessorButton(DataAssembler assembler, List<Integer> years) {
         return new JButton(new AbstractAction("Obter desvio padrão") {
             @Override
@@ -355,39 +361,10 @@ public class MainButton {
                 frame.setLayout(null);
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 final List<String> xSelection = new ArrayList<>();
-                JButton xButton = new JButton(new AbstractAction("Selecionar dimensões") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        JFrame xFrame = new JFrame("Selecionar dimensões");
-                        createYearButtons(xFrame, xSelection, DatasetUtils.schema.fieldNames());
-                    }
-                });
-                xButton.setBounds(50, 50, 200, 50);
-                frame.add(xButton);
+                getDimensionList(xSelection, frame);
                 final List<String> ySelection = new ArrayList<>();
 
-                JButton yButton = new JButton(new AbstractAction("Selecionar valores") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        JFrame xFrame = new JFrame("Selecionar valores");
-                        Iterator<StructField> iterator = DatasetUtils.schema.iterator();
-                        List<String> columsList = new ArrayList();
-                        while (iterator.hasNext()) {
-                            StructField next = iterator.next();
-                            if (next.dataType().typeName().equals("double")) {
-                                columsList.add(next.name());
-                            }
-                        }
-                        String[] colums = columsList.toArray(String[]::new);
-                        createYearButtons(xFrame, ySelection, colums);
-                    }
-                });
-
-                yButton.setBounds(300, 50, 200, 50);
-                frame.add(yButton);
-
-
-                frame.setSize(550, 300);
+                getValueList(ySelection, frame);
 
                 JButton confirmationButton = new JButton(new AbstractAction("Confirm") {
                     @Override
@@ -451,7 +428,6 @@ public class MainButton {
         list.addListSelectionListener(e1 -> {
             if (e1.getValueIsAdjusting()) {
                 selection[0] = colums[list.getSelectedIndex()];
-                System.out.println(selection[0]);
                 xFrame.dispose();
             }
         });
@@ -560,7 +536,7 @@ public class MainButton {
         d.setVisible(true);
     }
 
-    private static void createConfirmationDialog(String message) {
+    public static void createConfirmationDialog(String message) {
         createConfirmationDialog(message, message);
     }
 }

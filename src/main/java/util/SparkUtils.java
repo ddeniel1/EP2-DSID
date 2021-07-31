@@ -5,11 +5,15 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
 public final class SparkUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SparkUtils.class);
     private SparkUtils() {
     }
 
@@ -25,10 +29,10 @@ public final class SparkUtils {
 
     public static Dataset<Row> readCsv(SparkSession sparkSession, String path, StructType schema) {
 
-        String bucket = null;
+        String filePath = null;
         try {
-            bucket = new File(".").getCanonicalPath() + "/" + path;
-            System.out.println(bucket);
+            filePath = new File(".").getCanonicalPath() + "/" + path;
+            LOGGER.info("m=readCsv msg=Reading file {}", filePath);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,6 +42,6 @@ public final class SparkUtils {
                 .option("quote", "\"")
                 .schema(schema)
 //                .option("inferSchema","true")
-                .csv(bucket);
+                .csv(filePath);
     }
 }
